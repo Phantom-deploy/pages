@@ -22,16 +22,6 @@
       <span class="jv-flow-node-sub">Timestamped Images</span>
     </div>
     <span class="jv-flow-arrow">→</span>
-    <div class="jv-flow-node">
-      <span class="jv-flow-node-label">Preprocessing</span>
-      <span class="jv-flow-node-sub">OpenCV / Frame Prep</span>
-    </div>
-    <span class="jv-flow-arrow">→</span>
-    <div class="jv-flow-node">
-      <span class="jv-flow-node-label">YOLO</span>
-      <span class="jv-flow-node-sub">Object Recognition</span>
-    </div>
-    <span class="jv-flow-arrow">→</span>
     <div class="jv-flow-node active">
       <span class="jv-flow-node-label">SAM 3</span>
       <span class="jv-flow-node-sub">Precise Segmentation</span>
@@ -51,6 +41,27 @@
     </p>
   </div>
 
+  
+  <!-- System architecture -->
+  <div class="jv-section-label">System Architecture</div>
+  <div class="jv-card">
+    <div class="jv-diagram">
+      <pre class="mermaid" style="margin:0;">flowchart TD
+    C1["Camera 1
+Main Linux computer"] --> CAP["FFmpeg capture
+Timestamped frame"]
+    C2["Camera 2
+Second Linux computer"] --> TX["SSH / NetBird"]
+    TX --> CAP
+    CAP --> SAM["SAM 3
+Object segmentation"]
+    SAM --> FUSE["Multi-camera matching
+and temporal tracking"]
+    FUSE --> ROOM["Room model
+Identity + location + history"]</pre>
+    </div>
+  </div>
+
   <!-- Core Research Question -->
   <div class="jv-section-label">Core Research Question</div>
   <div class="jv-card">
@@ -68,20 +79,19 @@
       </div>
       <span class="jv-flow-arrow">→</span>
       <div class="jv-flow-node active">
-        <div class="jv-flow-node-photo"><img src="/images/capstone/jarvis-bom/linux-computer.png" alt="Main Linux computer"></div>
+        <div class="jv-flow-node-photo"><img src="/images/capstone/jarvis-bom/mac-mini.jpg" alt="Main Linux computer"></div>
         <span class="jv-flow-node-label">Main Linux Computer</span>
-        <span class="jv-flow-node-sub">Capture + YOLO + SAM 3</span>
+        <span class="jv-flow-node-sub">Capture + SAM 3</span>
       </div>
       <span class="jv-flow-arrow">→</span>
       <div class="jv-flow-node">
-        <span class="jv-flow-node-icon">🗄️</span>
         <span class="jv-flow-node-label">Frames + Room Model</span>
         <span class="jv-flow-node-sub">Local storage</span>
       </div>
     </div>
     <div class="jv-flow-link">
-      <div class="jv-flow-node-photo" style="width:28px;height:28px;"><img src="/images/capstone/jarvis-bom/tailscale-logo.svg" alt="Tailscale"></div>
-      <span>Tailscale / SSH</span>
+      <div class="jv-flow-node-photo" style="width:28px;height:28px;"><img src="/images/capstone/jarvis-bom/netbird-logo.png" alt="NetBird"></div>
+      <span>Netbird / SSH</span>
     </div>
     <div class="jv-flow-row">
       <div class="jv-flow-node">
@@ -91,7 +101,7 @@
       </div>
       <span class="jv-flow-arrow">→</span>
       <div class="jv-flow-node">
-        <div class="jv-flow-node-photo"><img src="/images/capstone/jarvis-bom/linux-computer.png" alt="Second Linux computer"></div>
+        <div class="jv-flow-node-photo"><img src="/images/capstone/jarvis-bom/mac-mini.jpg" alt="Second Linux computer"></div>
         <span class="jv-flow-node-label">Second Linux Computer</span>
         <span class="jv-flow-node-sub">Capture only, planned</span>
       </div>
@@ -141,8 +151,8 @@ Nov 2026"]
   <div class="jv-hub-grid">
     <a href="/capstone/jarvis/technical/" class="jv-hub-card">
       <span class="jv-hub-card-title">Technical Detail &amp; Flow</span>
-      <span class="jv-hub-card-desc">Full system architecture, capture and processing loops, observation state machine, data models, and privacy design.</span>
-      <span class="jv-hub-card-arrow">View Technical Architecture</span>
+      <span class="jv-hub-card-desc">Capture and processing loops, observation state machine, data models, and privacy design.</span>
+      <span class="jv-hub-card-arrow">View Technical Detail</span>
     </a>
     <a href="/capstone/jarvis/research-1/" class="jv-hub-card">
       <span class="jv-hub-card-title">Research 1: Camera &amp; Hardware</span>
@@ -150,18 +160,18 @@ Nov 2026"]
       <span class="jv-hub-card-arrow">Explore Research 1</span>
     </a>
     <a href="/capstone/jarvis/research-2/" class="jv-hub-card">
-      <span class="jv-hub-card-title">Research 2: YOLO Object Recognition</span>
-      <span class="jv-hub-card-desc">Core classroom object detection, dataset annotation, confidence metrics, and baseline testing.</span>
+      <span class="jv-hub-card-title">Research 2: SAM 3 Segmentation</span>
+      <span class="jv-hub-card-desc">Pixel-precise mask generation, bounding box refinement, and CPU performance optimization.</span>
       <span class="jv-hub-card-arrow">Explore Research 2</span>
     </a>
     <a href="/capstone/jarvis/research-3/" class="jv-hub-card">
-      <span class="jv-hub-card-title">Research 3: SAM 3 Segmentation</span>
-      <span class="jv-hub-card-desc">Pixel-precise mask generation, bounding box refinement, and CPU performance optimization.</span>
+      <span class="jv-hub-card-title">Research 3: Spatial Perception &amp; Distance Estimation</span>
+      <span class="jv-hub-card-desc">Depth models, cross-view feature matching, and 3D point-cloud mapping across two wide-spaced cameras.</span>
       <span class="jv-hub-card-arrow">Explore Research 3</span>
     </a>
     <a href="/capstone/jarvis/research-4/" class="jv-hub-card">
-      <span class="jv-hub-card-title">Research 4: Spatial Tracking &amp; Room Model</span>
-      <span class="jv-hub-card-desc">Temporal object tracking across frames, multi-camera fusion, and state change event management.</span>
+      <span class="jv-hub-card-title">Research 4: Visual Memory &amp; Scene Comparison</span>
+      <span class="jv-hub-card-desc">Shadow/light invariance, edge background subtraction, patent reviews, and commercial product comparisons.</span>
       <span class="jv-hub-card-arrow">Explore Research 4</span>
     </a>
   </div>

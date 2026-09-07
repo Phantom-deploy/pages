@@ -12,32 +12,7 @@
   <div class="jv-header">
     <div class="jv-badge">Technical Specification · Architecture &amp; Lifecycle</div>
     <h1 class="jv-page-title">Technical Detail &amp; System Flow</h1>
-    <p class="jv-description">In-depth technical architecture, state machines, capture loops, data schemas, and privacy governance models underpinning the Jarvis classroom perception pipeline.</p>
-  </div>
-
-  <!-- System architecture -->
-  <div class="jv-section-label">System Architecture</div>
-  <div class="jv-card">
-    <div class="jv-diagram">
-      <pre class="mermaid" style="margin:0;">flowchart TD
-    C1["Camera 1
-Main Linux computer"] --> CAP["FFmpeg capture
-Timestamped frame"]
-    C2["Camera 2
-Second Linux computer"] --> TX["Secure transfer
-SSH / Tailscale"]
-    TX --> CAP
-    CAP --> CV["OpenCV
-Load and preprocess"]
-    CV --> YOLO["YOLO
-Class + box + confidence"]
-    YOLO --> SAM["SAM 3
-Pixel-level object mask"]
-    SAM --> FUSE["Multi-camera matching
-and temporal tracking"]
-    FUSE --> ROOM["Room model
-Identity + location + history"]</pre>
-    </div>
+    <p class="jv-description">In-depth state machines, capture loops, data schemas, and privacy governance models underpinning the Jarvis classroom perception pipeline.</p>
   </div>
 
   <!-- Capture and processing loop -->
@@ -101,62 +76,50 @@ and observation record"]
   <div class="jv-card">
     <div class="jv-decision-grid">
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">📷</span>
         <span class="jv-decision-title">Two cameras, opposite sides</span>
         <p class="jv-decision-why">Fewer blind spots, backup view.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🖼️</span>
         <span class="jv-decision-title">Still frames, not video</span>
         <p class="jv-decision-why">Less storage and CPU load.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">⏱️</span>
         <span class="jv-decision-title">10-second interval</span>
         <p class="jv-decision-why">Frequent enough, easy to tune.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🎯</span>
         <span class="jv-decision-title">YOLO before materials</span>
         <p class="jv-decision-why">Objects first, materials later.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🪑</span>
         <span class="jv-decision-title">Six core classes</span>
         <p class="jv-decision-why">Small, manageable first dataset.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">✂️</span>
         <span class="jv-decision-title">SAM 3 for masks</span>
         <p class="jv-decision-why">Precise pixels, not new labels.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🧵</span>
         <span class="jv-decision-title">Material ID deferred</span>
         <p class="jv-decision-why">Separate task, later milestone.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🧰</span>
         <span class="jv-decision-title">OpenCV pipeline</span>
         <p class="jv-decision-why">Load, crop, compare, save frames.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🎚️</span>
         <span class="jv-decision-title">Class confidence ≠ track confidence</span>
         <p class="jv-decision-why">Doubt in one doesn't mean doubt in the other.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🔁</span>
         <span class="jv-decision-title">Multiple observations required</span>
         <p class="jv-decision-why">One miss doesn't mean a change.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">✅</span>
         <span class="jv-decision-title">80% success threshold</span>
         <p class="jv-decision-why">Clear, testable bar for v1.</p>
       </div>
       <div class="jv-decision-card">
-        <span class="jv-decision-icon">🖥️</span>
         <span class="jv-decision-title">Central processing</span>
         <p class="jv-decision-why">One machine, one room model.</p>
       </div>
@@ -262,8 +225,8 @@ occupancy"]</pre>
         <p class="jv-bom-note">Reaches elevated mounts.</p>
       </div>
       <div class="jv-bom-card">
-        <div class="jv-bom-thumb"><img src="/images/capstone/jarvis-bom/tailscale-logo.svg" alt="Tailscale logo"></div>
-        <span class="jv-bom-title">Tailscale / network</span>
+        <div class="jv-bom-thumb"><img src="/images/capstone/jarvis-bom/netbird-logo.png" alt="NetBird logo"></div>
+        <span class="jv-bom-title">NetBird</span>
         <div class="jv-bom-meta"><span class="jv-pill jv-pill-good">TESTED</span><span class="jv-bom-cost">Free tier</span></div>
         <p class="jv-bom-note">Cross-network SSH + transfer.</p>
       </div>
