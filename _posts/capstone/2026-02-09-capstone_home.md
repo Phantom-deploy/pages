@@ -331,6 +331,18 @@ Below are the capstone infographic pages created by student groups. Click an ima
            <p class="text-xs text-gray-500 mt-2">Team: Ruhaan Bansal, Arya Taghavi Zargar, Deyar Raissadat, Ishan Jha, Ishan Khandelwal, Vayun Shekhar</p>
        </div>
    </div>
+  
+   <!-- Submissions Capstone (umbrella issue: AAA, Submission Analytics, AI Grading) -->
+   <div class="flex items-start space-x-4 p-4 border rounded-lg capstone-item CSA" data-year="2026-2027">
+       <a href="{% post_url capstone/2026-08-31-submissions-capstone %}">
+           <div class="w-28 h-28 flex items-center justify-center bg-blue-900 text-white text-2xl font-bold rounded" style="background: linear-gradient(135deg, #06b6d4, #0f172a);">SUB</div>
+       </a>
+       <div>
+           <h3 class="text-lg font-semibold"><a href="{% post_url capstone/2026-08-31-submissions-capstone %}">OCS Submissions</a></h3>
+           <p class="text-sm text-gray-700">Umbrella capstone covering three groups' work on the assignment/submission system: assignment creator permissions, submission analytics, and AI grading.</p>
+           <p class="text-xs text-gray-500 mt-2">Groups: Assignment Creator Permissions, Submission Analytics, AI Grading</p>
+       </div>
+   </div>
 
 
    <!-- UESL Accessible Game Maker 2.0 (CSP, 2026/2027) -->
@@ -806,8 +818,8 @@ Below are the capstone infographic pages created by student groups. Click an ima
        </div>
    </div>
    
-   <!-- California Center For The Performing Arts Escondido (CSP) -->
-   <div class="flex items-start space-x-4 p-4 border rounded-lg capstone-item CSP">
+   <!-- California Center For The Performing Arts Escondido (CSP, 2026/2027) -->
+   <div class="flex items-start space-x-4 p-4 border rounded-lg capstone-item CSP" data-year="2026-2027">
        <a href="{% post_url 2026-09-08-ccae-escondido-capstone %}">
            <img src="/images/capstone/ccae.jpeg" alt="Cal Center For Arts Escondido Logo" class="w-28 h-28 object-contain rounded" />
        </a>
