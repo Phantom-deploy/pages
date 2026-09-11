@@ -264,10 +264,10 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-<div id="capstone-grid" class="ocs__grid ocs__grid--standard">
+<div id="capstone-grid" class="ocs__grid ocs__grid--card">
 
    <!-- SFI Foundation 2026–27 (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP"
+   <div class="ocs__grid-cell CSP"
         data-year="2026-2027"
         data-page-url="{{ '/capstone/sfi-foundation/' | relative_url }}"
         data-frontend-url="https://github.com/ruhaanb622/SFI-Frontend"
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
   
    <!-- Submissions Capstone (umbrella issue: AAA, Submission Analytics, AI Grading) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA" data-year="2026-2027">
+   <div class="ocs__grid-cell CSA" data-year="2026-2027">
        <a href="{% post_url capstone/2026-08-31-submissions-capstone %}">
            <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder" style="background: linear-gradient(135deg, #06b6d4, #0f172a);">SUB</div>
        </a>
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
    <!-- UESL Accessible Game Maker 2.0 (CSP, 2026/2027) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027" data-page-url="{{ '/capstone/uesl-game-maker/' | relative_url }}" data-frontend-url="https://github.com/RazorCrest00/uesl-accessible-game-maker">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027" data-page-url="{{ '/capstone/uesl-game-maker/' | relative_url }}" data-frontend-url="https://github.com/RazorCrest00/uesl-accessible-game-maker">
        <a href="{{ '/capstone/uesl-game-maker/' | relative_url }}">
            <img src="{{ '/images/capstone/uesl_foundation.svg' | relative_url }}" alt="UESL Foundation logo — shield with game controller" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
    <!-- RFID + Camera-Correlated Classroom Presence -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSH" data-year="2026-2027">
+   <div class="ocs__grid-cell CSH" data-year="2026-2027">
      <a href="{% post_url capstone/2026-08-28-rfid-presence-capstone %}">
        <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);">RFID</div>
      </a>
@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function(){
      </div>
    </div>
     <!-- Jarvis Classroom Object Detection -->
-    <div class="ocs__grid-cell ocs__grid-cell--project CSH" data-year="{{ site.data.jarvis_infograph.Year }}" data-frontend-url="{{ site.data.jarvis_infograph.Repo }}">
+    <div class="ocs__grid-cell CSH" data-year="{{ site.data.jarvis_infograph.Year }}" data-frontend-url="{{ site.data.jarvis_infograph.Repo }}">
       <a href="{% post_url capstone/2026-09-01-jarvis-capstone %}">
         <img src="{{ '/images/' | append: site.data.jarvis_infograph.Image | relative_url }}" alt="{{ site.data.jarvis_infograph.Title }}" class="ocs__image-frame ocs__image-frame--thumbnail" />
       </a>
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
    <!-- Big Six & Code Hub -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-03-04-big6-capstone %}">
            <img src="/images/capstone/backend.png" alt="Big Six & Code Hub — Interactive CS Learning Modules" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
    <!-- Assignment Resources Platform -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-06-slack-messaging-capstone %}">
          <img src="/images/capstone/database_defenders.png" alt="Assignment Resources Platform - Assignment-scoped File & URL Resources" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
    <!-- Educators Capstone -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-06-educators-capstone %}">
            <img src="/images/capstone/educators_icon.png" alt="Educators - Temporal Wayfinding for CS Learning" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function(){
        </div>
    </div>
     <!-- OCS Intelligence LLM -->
-    <div class="ocs__grid-cell ocs__grid-cell--project CSH" data-year="2026-2027">
+    <div class="ocs__grid-cell CSH" data-year="2026-2027">
       <a href="{% post_url capstone/2026-08-31-ocs-intelligence-capstone %}">
         <img src="/images/capstone/ocs-intelligence.png" alt="OCS Intelligence LLM - Shared AI Infrastructure for Students" class="ocs__image-frame ocs__image-frame--thumbnail" />
       </a>
@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
 
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA" data-year="2026-2027">
+   <div class="ocs__grid-cell CSA" data-year="2026-2027">
        <a href="{% post_url capstone/2026-08-28-toolchain-trail %}">
          <img src="{{ '/images/' | append: site.data.toolchain-trail-capstone.Logo | relative_url }}" alt="{{ site.data.toolchain-trail-capstone.Title }} logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Hunger Heroes -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-06-hunger-heroes-capstone %}">
            <img src="/images/capstone/hunger_heroes.svg" alt="Hunger Heroes - Food Redistribution Platform" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Quant Game -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-06-quant-game-capstone %}">
            <img src="/images/capstone/quant-trading-game.png" alt="Quantitative Trading Bot capstone infographic preview image" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Bud-E -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-08-bud-e-capstone %}">
            <img src="/images/capstone/bud_e.png" alt="Bud-E - Productivity Gamification Through Virtual Pet" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Granolaa -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-08-granolaa-capstone %}">
            <img src="/images/capstone/granolaa.png" alt="Granolaa - Local-First Screen and Webcam Monitoring" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Wayfinding Pages -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-02-08-wayfinding-pages-capstone %}">
            <img src="/images/capstone/wayfinding_logo.png" alt="Wayfinding Pages - Sorting Groups Based on your Persona" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Greppers -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-04-greppers-capstone %}">
            <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder capstone-card-placeholder--large">SFI</div>
        </a>
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
   <!-- Oasis Capstone -->
-  <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+  <div class="ocs__grid-cell CSA">
       <a href="{% post_url 2026-03-04-oasis-community-capstone %}">
           <img src="/images/capstone/oasis-logo.png" alt="Oasis Capstone" class="ocs__image-frame ocs__image-frame--thumbnail" />
       </a>
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 
   <!-- Kora Capstone -->
-  <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+  <div class="ocs__grid-cell CSA">
       <a href="{% post_url 2026-02-06-kora-capstone %}">
           <img src="/images/capstone/kora.png" alt="Kora Capstone" class="ocs__image-frame ocs__image-frame--thumbnail" />
       </a>
@@ -488,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 
    <!-- Pirna Pages -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url 2026-02-13-pirna-capstone %}">
            <img src="/images/capstone/pirna_logo.png" alt="AutoTriage - Triage project" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -500,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- AP CSA Exam Simulator -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url capstone/2026-05-19-exam-simulator-capstone %}">
            <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder" style="background: linear-gradient(135deg, #4CAFEF, #667eea);">FRQ</div>
        </a>
@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Poway Symphonic Orchestra Capstone -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{{ '/capstone/powayorchestra/' | relative_url }}">
          <div class="ocs__image-frame ocs__image-frame--cover ocs__image-frame--thumbnail">
            <img src="{{ '/images/pso_logo.png' | relative_url }}" alt="Poway Symphony Orchestra logo" />
@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Poway NEC -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-06-powaynec-capstone %}">
            <img src="/images/capstone/powaynec-logo-white.png" alt="Poway NEC logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- HawkHub -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSA">
+   <div class="ocs__grid-cell CSA">
        <a href="{% post_url 2026-02-06-hawkhub %}">
            <img src="/images/capstone/hawkhub.png" alt="HawkHub" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
    
    <!-- Doing Exceptional Deeds -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-09-doing-exceptional-deeds %}">
            <img src="/images/capstone/doing_exceptional_deeds.png" alt="Doing Exceptional Deeds - D.A.D. Non-profit Extension" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
                                     
    <!-- ACS Cancer Infograph (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-05-acs-cancer-infograph %}">
            <img src="/images/capstone/acs_logo.png" alt="ACS Cancer Infograph — Interactive Body Map for Cancer Information" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
    <!-- Poway Woman's Club Capstone (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-09-poway-womans-club %}">
            <img src="/images/capstone/pwc_logo.png" alt="Poway Woman's Club — Website Refurbishment" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- UESL Foundation Capstone (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-05-uesl-capstone %}">
            <img src="/images/capstone/uesl_foundation.svg" alt="Unified Esports League Foundation logo — shield with game controller" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- DeFlock SD Capstone (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-06-deflock-sd %}">
            <img src="/images/capstone/deflock-sd.png" alt="DeFlock SD - Fighting Mass Surveillance" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -611,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Soroptimist International of Poway (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-08-sip-infograph %}">
            <img src="/images/sip/sip_logo.png" alt="Soroptimist International of Poway - Site Analysis" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Sentri (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-04-sentri-capstone %}">
            <img src="/images/capstone/sentri.png" alt="Sentri" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
    <!-- Integra (CSP 26-27) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027">
        <a href="{% post_url 2026-03-04-sentri-capstone %}">
            <img src="/images/capstone/sentri.png" alt="Sentri" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -647,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
    
    <!-- Friends of the Poway Library  (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-09-poway-library %}">
            <img src="/images/capstone/poway_library.png" alt="Friends of the Poway Library" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- DSA Website Redesign (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-09-dsa-website-redesign-blog %}">
            <img src="/images/capstone/dsa_redesign.svg" alt="DSA Website Redesign — Deputy Sheriffs' Association of San Diego County" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- D.A.D. Website Redesign (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-09-dad-website-redesign-blog %}">
            <img src="/images/capstone/dad_redesign.svg" alt="D.A.D. Website Redesign — Doing Exceptional Deeds Nonprofit" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- RCR: Poway-Midland Railroad Project -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-06-rcr-poway-midland-capstone %}">
            <img src="https://static.vecteezy.com/system/resources/previews/034/949/404/non_2x/simple-steam-train-icon-illustration-design-steam-locomotive-symbol-template-vector.jpg" alt="RCR Poway-Midland Railroad Digital Experience" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -695,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
     <!-- Poway Veteran's Organization-->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
     <a href="{% post_url 2026-03-06-pvo-redesign-infographic %}">
         <img src="/images/capstone/poway-veterans-logo.png" alt="Poway Veterans Organization" class="ocs__image-frame ocs__image-frame--thumbnail" />
     </a>
@@ -707,7 +707,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 </div>
   <!-- SD Auto (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-04-15-sd-auto-capstone %}">
            <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);">SD Auto</div>
        </a>
@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
   <!-- FOPS (2025-2026) -->
- <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2025-2026">
+ <div class="ocs__grid-cell CSP" data-year="2025-2026">
         <a href="{% post_url 2026-03-09-friends-of-poway-seniors-capstone %}">
             <img src="/images/capstone/fops.png" alt="Friends of Poway Seniors" class="ocs__image-frame ocs__image-frame--thumbnail" />
         </a>
@@ -731,7 +731,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
   <!-- FOPS (2026-2027) -->
- <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+ <div class="ocs__grid-cell CSP" data-year="2026-2027">
         <a href="{% post_url 2026-03-09-friends-of-poway-seniors-capstone %}">
             <img src="/images/capstone/fops.png" alt="Friends of Poway Seniors" class="ocs__image-frame ocs__image-frame--thumbnail" />
         </a>
@@ -743,7 +743,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
  <!-- Dynamic Event Calendar (CSP) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP">
+   <div class="ocs__grid-cell CSP">
        <a href="{% post_url 2026-03-08-Flask-and-Furious-capstone %}">
            <img src="/images/capstone/sph.png" alt="Safe Passage Heals" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -755,7 +755,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
    
    <!-- California Center For The Performing Arts Escondido (CSP, 2026/2027) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027">
        <a href="{% post_url 2026-09-08-ccae-escondido-capstone %}">
            <img src="/images/capstone/ccae.jpeg" alt="Cal Center For Arts Escondido Logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -767,7 +767,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- San Diego Senior Games (CSP, 2026/2027) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027">
        <a href="{% post_url 2026-09-10-sdseniorgames-capstone %}">
            <img src="/images/capstone/sdseniorgames.png" alt="San Diego Senior Games Logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -779,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Advancing STEM (CSP, 2026/2027) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027">
        <a href="{% post_url 2026-09-10-advancingstem-capstone %}">
            <img src="/images/capstone/advancingstem.png" alt="Advancing STEM Logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -791,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- San Diego Lab Rats (CSP, 2026/2027) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027">
        <a href="{% post_url 2026-09-10-sdlabrats-capstone %}">
            <img src="/images/capstone/sdlabrats.png" alt="San Diego Lab Rats Logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -803,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- OCS Assignment Tracker (CSA) -->
-  <div class="ocs__grid-cell ocs__grid-cell--project CSA" data-year="2026-2027">
+  <div class="ocs__grid-cell CSA" data-year="2026-2027">
        <a href="{% post_url capstone/2026-09-03-chuds-capstone %}">
            <img src="/images/backendboyzgcpiccc.png" alt="Backend Boyz - OCS Assignment Tracker" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- OCS Security (CSA) -->
-  <div class="ocs__grid-cell ocs__grid-cell--project CSA" data-year="2026-2027">
+  <div class="ocs__grid-cell CSA" data-year="2026-2027">
        <a href="{% post_url capstone/2026-09-03-cccs-security %}">
            <img src="/images/capstone/cccs-security-logo.png" alt="CCCS Security" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -827,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- My Good Brain (CSP 26-27) -->
-   <div class="ocs__grid-cell ocs__grid-cell--project CSP" data-year="2026-2027">
+   <div class="ocs__grid-cell CSP" data-year="2026-2027">
        <a href="{% post_url 2026-09-09-goodbrain %}">
            <img src="{{ '/images/capstone/my_good_brain.png' | relative_url }}" alt="My Good Brain logo" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -839,7 +839,7 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
    <!-- Communication System (CSA) -->
-  <div class="ocs__grid-cell ocs__grid-cell--project CSA" data-year="2026-2027">
+  <div class="ocs__grid-cell CSA" data-year="2026-2027">
        <a href="{% post_url capstone/2026-08-27-communication-system-capstone %}">
            <img src="/images/csa-chat/announcement-chat.png" alt="Communication System - class announcement chat on the CSA course page" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var team=Array.isArray(p.teamMembers)?p.teamMembers.join(', '):String(p.teamMembers||'');
     var course=(p.courseCode||'CSA').toUpperCase();
     var div=document.createElement('div');
-    div.className='ocs__grid-cell ocs__grid-cell--project relative '+course;
+    div.className='ocs__grid-cell relative '+course;
     div.innerHTML='<a class="ocs__thumbnail-link" href="'+esc(href)+'">'+imgHtml+'<h3>'+esc(p.title)+'</h3></a><div class="ocs__card-details"><p class="ocs__card-treatment">'+esc(course)+'</p><p class="ocs__card-description">'+esc(p.description||'')+'</p><p class="ocs__card-team">Team: '+esc(team)+'</p></div>';
     grid.prepend(div);
     div.scrollIntoView({behavior:'smooth',block:'nearest'});
