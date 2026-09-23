@@ -5,9 +5,11 @@ from pathlib import Path
 
 from scripts.create_assignments_from_frontmatter import (
     AssignmentFrontmatterError,
+    RequestPacer,
     canonicalize_content_url,
     create_assignment,
     deduplicate_candidates,
+    deduplicate_candidates_resilient,
     determine_content_url,
     read_course_codes,
     read_creator_uids,
@@ -22,6 +24,21 @@ class RecordingSession:
     def post(self, url, data, timeout):
         self.request = {"url": url, "data": data, "timeout": timeout}
         return object()
+
+
+class RequestPacerTests(unittest.TestCase):
+    def test_requests_are_spaced_below_the_configured_limit(self):
+        sleeps = []
+        pacer = RequestPacer(60, clock=lambda: 10.0, sleeper=sleeps.append)
+
+        pacer.wait()
+        pacer.wait()
+
+        self.assertEqual([1.0], sleeps)
+
+    def test_nonpositive_limit_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "greater than zero"):
+            RequestPacer(0)
 
 
 class AssignmentCreatorFrontmatterTests(unittest.TestCase):
@@ -179,12 +196,37 @@ class AssignmentCreatorFrontmatterTests(unittest.TestCase):
 
     def test_conflicting_duplicate_assignment_metadata_is_rejected(self):
         candidates = [
-            (Path("_posts/ground-0.md"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSA"]),
-            (Path("_notebooks/ground-0.ipynb"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSP"]),
+            (Path("assignments/ground-0.md"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSA"]),
+            (Path("navigation/ground-0.md"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSP"]),
         ]
 
         with self.assertRaisesRegex(AssignmentFrontmatterError, "Conflicting assignment metadata"):
             deduplicate_candidates(candidates)
+
+    def test_source_notebook_wins_over_stale_generated_post(self):
+        candidates = [
+            (Path("_posts/generated.md"), "csa/lesson", "Lesson", "A", None, None, None, [], None),
+            (Path("_notebooks/lesson.ipynb"), "csa/lesson", "Lesson", "A", None, None, "link", ["creator"], ["CSA"]),
+        ]
+
+        result = deduplicate_candidates(candidates)
+
+        self.assertEqual(1, len(result))
+        self.assertEqual(Path("_notebooks/lesson.ipynb"), result[0][0])
+        self.assertEqual(["creator"], result[0][7])
+
+    def test_one_conflicting_url_does_not_block_unrelated_assignments(self):
+        candidates = [
+            (Path("one.md"), "csa/conflict", "One", "A", None, None, None, [], ["CSA"]),
+            (Path("two.md"), "csa/conflict", "Two", "B", None, None, None, [], ["CSP"]),
+            (Path("valid.md"), "csa/valid", "Valid", "C", None, None, None, ["creator"], ["CSA"]),
+        ]
+
+        resolved, errors = deduplicate_candidates_resilient(candidates)
+
+        self.assertEqual(["csa/valid"], [candidate[1] for candidate in resolved])
+        self.assertEqual(1, len(errors))
+        self.assertIn("csa/conflict", errors[0])
 
 
 class ContentUrlDerivationTests(unittest.TestCase):
