@@ -31,6 +31,11 @@ DEFAULT_BASE_URL = os.getenv("BASE_URL", "https://spring.opencodingsociety.com")
 DEFAULT_UID = os.getenv("PAGES_BOT_UID", "pages-bot")
 DEFAULT_PASSWORD = os.getenv("PAGES_BOT_PASSWORD", "")
 DEFAULT_REQUESTS_PER_MINUTE = int(os.getenv("ASSIGNMENT_SYNC_REQUESTS_PER_MINUTE", "80"))
+GENERATED_PROJECT_ROOTS = {
+    ("_notebooks", "projects"),
+    ("_posts", "projects"),
+    ("_sass", "projects"),
+}
 
 
 class AssignmentFrontmatterError(ValueError):
@@ -76,10 +81,15 @@ def post_with_rate_limit_retry(session, url, *, max_attempts=3, sleeper=time.sle
 
 
 def find_files(root: Path):
+    """Yield editable assignment sources, excluding registered-project build outputs."""
     exts = {".md", ".markdown", ".html", ".htm", ".ipynb"}
-    for p in root.rglob("*"):
-        if p.is_file() and p.suffix.lower() in exts:
-            yield p
+    for path in root.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in exts:
+            continue
+        relative_parts = path.relative_to(root).parts
+        if len(relative_parts) >= 2 and relative_parts[:2] in GENERATED_PROJECT_ROOTS:
+            continue
+        yield path
 
 
 def parse_frontmatter_text(text: str):
@@ -272,25 +282,29 @@ def deduplicate_candidates(candidates):
             continue
 
         existing = unique[content_url]
-        existing_is_notebook = existing[0].suffix.lower() == ".ipynb"
-        candidate_is_notebook = path.suffix.lower() == ".ipynb"
 
-        # Notebook conversion can leave a checked-in generated post temporarily stale.
-        # The notebook is the editable source, so it must win without allowing generated
-        # output to block synchronization for every other assignment in the repository.
-        if existing_is_notebook != candidate_is_notebook:
-            if candidate_is_notebook:
-                unique[content_url] = candidate
-            continue
-
-        # Generated posts can intentionally shorten display text from their source
-        # notebook. Only ownership and course metadata is resynchronized on existing
-        # assignments, so those are the fields where disagreement must stop the run.
-        if existing[6:9] != candidate[6:9]:
-            raise AssignmentFrontmatterError(
-                "Conflicting assignment metadata for contentUrl "
-                f"'{content_url}' in {existing[0]} and {path}"
+        # Conversion may temporarily leave a generated copy without newer optional
+        # synchronization fields. Merge complementary metadata without relying on path
+        # conventions; two different populated values remain a real conflict.
+        merged_sync_metadata = []
+        for existing_value, candidate_value in zip(existing[6:9], candidate[6:9]):
+            existing_is_populated = existing_value is not None and existing_value != []
+            candidate_is_populated = candidate_value is not None and candidate_value != []
+            if existing_is_populated and candidate_is_populated and existing_value != candidate_value:
+                raise AssignmentFrontmatterError(
+                    "Conflicting assignment metadata for contentUrl "
+                    f"'{content_url}' in {existing[0]} and {path}"
+                )
+            merged_sync_metadata.append(
+                existing_value if existing_is_populated else candidate_value
             )
+
+        # Prefer the editable notebook's display metadata when a converted copy is also
+        # present, then apply the safely merged synchronization fields to that candidate.
+        preferred = candidate if path.suffix.lower() == ".ipynb" else existing
+        merged = list(preferred)
+        merged[6:9] = merged_sync_metadata
+        unique[content_url] = tuple(merged)
 
     return list(unique.values())
 

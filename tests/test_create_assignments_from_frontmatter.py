@@ -11,6 +11,8 @@ from scripts.create_assignments_from_frontmatter import (
     deduplicate_candidates,
     deduplicate_candidates_resilient,
     determine_content_url,
+    find_files,
+    post_with_rate_limit_retry,
     read_course_codes,
     read_creator_uids,
     read_frontmatter,
@@ -24,6 +26,64 @@ class RecordingSession:
     def post(self, url, data, timeout):
         self.request = {"url": url, "data": data, "timeout": timeout}
         return object()
+
+
+class RateLimitRetryTests(unittest.TestCase):
+    def test_rate_limited_request_honors_retry_after_then_succeeds(self):
+        class Response:
+            def __init__(self, status_code, retry_after=None):
+                self.status_code = status_code
+                self.headers = {} if retry_after is None else {"Retry-After": retry_after}
+
+        class Session:
+            def __init__(self):
+                self.responses = [Response(429, "2"), Response(200)]
+                self.calls = 0
+
+            def post(self, url, **kwargs):
+                self.calls += 1
+                return self.responses.pop(0)
+
+        session = Session()
+        sleeps = []
+
+        response = post_with_rate_limit_retry(
+            session,
+            "https://spring.example.test/api/assignments/auto-create",
+            sleeper=sleeps.append,
+            data={"name": "Assignment"},
+            timeout=30,
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2, session.calls)
+        self.assertEqual([2], sleeps)
+
+
+class AssignmentSourceDiscoveryTests(unittest.TestCase):
+    def test_generated_registered_project_outputs_are_not_scanned(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = [
+                root / "_projects/lessons/java/notebooks/source.ipynb",
+                root / "_notebooks/projects/java/generated.ipynb",
+                root / "_posts/projects/java/generated.md",
+                root / "_sass/projects/java/generated.ipynb",
+                root / "_notebooks/Foundation/source.ipynb",
+            ]
+            for path in paths:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("{}", encoding="utf-8")
+
+            found = {path.relative_to(root).as_posix() for path in find_files(root)}
+
+        self.assertEqual(
+            {
+                "_projects/lessons/java/notebooks/source.ipynb",
+                "_notebooks/Foundation/source.ipynb",
+            },
+            found,
+        )
 
 
 class RequestPacerTests(unittest.TestCase):
@@ -196,8 +256,8 @@ class AssignmentCreatorFrontmatterTests(unittest.TestCase):
 
     def test_conflicting_duplicate_assignment_metadata_is_rejected(self):
         candidates = [
-            (Path("assignments/ground-0.md"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSA"]),
-            (Path("navigation/ground-0.md"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSP"]),
+            (Path("_posts/ground-0.md"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSA"]),
+            (Path("_notebooks/ground-0.ipynb"), "sprint1/challenge", "Ground 0", "A", None, None, None, [], ["CSP"]),
         ]
 
         with self.assertRaisesRegex(AssignmentFrontmatterError, "Conflicting assignment metadata"):
@@ -214,6 +274,18 @@ class AssignmentCreatorFrontmatterTests(unittest.TestCase):
         self.assertEqual(1, len(result))
         self.assertEqual(Path("_notebooks/lesson.ipynb"), result[0][0])
         self.assertEqual(["creator"], result[0][7])
+
+    def test_stale_generated_metadata_cannot_erase_source_metadata(self):
+        candidates = [
+            (Path("_notebooks/lesson.ipynb"), "csa/lesson", "Lesson", "A", None, None, "link", ["creator"], ["CSA"]),
+            (Path("_posts/generated.md"), "csa/lesson", "Lesson", "A", None, None, None, [], None),
+        ]
+
+        result = deduplicate_candidates(candidates)
+
+        self.assertEqual(1, len(result))
+        self.assertEqual(Path("_notebooks/lesson.ipynb"), result[0][0])
+        self.assertEqual(("link", ["creator"], ["CSA"]), result[0][6:9])
 
     def test_one_conflicting_url_does_not_block_unrelated_assignments(self):
         candidates = [
