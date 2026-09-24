@@ -2,13 +2,13 @@
 layout: post
 title: SASS Buttons Grammar
 description: Explore the Open Coding Society button grammar through living examples.
-categories: [SASS, Buttons]
+categories: [SASS]
 lesson_language: SASS
-lesson_topic: Buttons Grammar
+lesson_topic: Buttons
 lesson_source: OCS
 lesson_type: lesson
 microblog: true
-permalink: /sass/buttons-grammar
+permalink: /sass/buttons-gramma
 author: Rashi, Aashni, and Kelervia
 ---
 # 🎓 School Portal UI: SASS Buttons & Grammar
