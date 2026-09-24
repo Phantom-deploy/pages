@@ -468,6 +468,7 @@ def main():
 
     print(f"Found {len(candidates)} pages with assignment: true")
     for path, content_url, name, description, points, due_date, assignment_submission_type, creator_uids, course_codes in candidates:
+        print(f"Processing assignment for path: {path}, contentUrl={content_url}, name={name}")
         creator_summary = ",".join(creator_uids) if creator_uids else "legacy/unassigned"
         course_summary = ",".join(course_codes) if course_codes else "legacy/unassigned"
         print(
