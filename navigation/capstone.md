@@ -358,15 +358,15 @@ document.addEventListener('DOMContentLoaded', function(){
    </div>
 
 
-   <!-- RFID + Camera-Correlated Classroom Presence -->
+   <!-- Classroom Presence System (RFID + QR + Camera) -->
    <div class="ocs__grid-cell CSH" data-year="2026-2027">
-     <a href="{% post_url capstone/RFID/2026-09-12-rfid-presence-capstone %}">
-       <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);">RFID</div>
+     <a href="{% post_url capstone/Presence/2026-09-12-presence-system-capstone %}">
+       <div class="ocs__image-frame ocs__image-frame--thumbnail capstone-card-placeholder" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);">Presence</div>
      </a>
      <div>
-       <h3><a href="{% post_url capstone/RFID/2026-09-12-rfid-presence-capstone %}">RFID + Camera-Correlated Classroom Presence</a></h3>
-       <p>A low-cost Raspberry Pi UHF RFID system that tracks device presence at the doorway and correlates it with an existing face-scanning camera system to determine true student presence, period by period.</p>
-       <p>Team: Ruta Sirdeshmukh, Vibha Mandayam, Kush Shah</p>
+       <h3><a href="{% post_url capstone/Presence/2026-09-12-presence-system-capstone %}">Classroom Presence System</a></h3>
+       <p>A design-based research project asking whether classroom presence can be measured with zero teacher effort. Three low-effort inputs, RFID tap, QR scan, and face scan, are evaluated in parallel against a shared presence engine and the bell schedule to track instructional minutes and show who is missing in real time.</p>
+       <p>Team: Vibha Mandayam (RFID), Ruta Sirdeshmukh (QR), Kush Shah (Camera)</p>
      </div>
    </div>
     <!-- Jarvis Classroom Object Detection -->
@@ -905,27 +905,15 @@ document.addEventListener('DOMContentLoaded', function(){
        </div>
    </div>
 
-   <!-- OCS Assignment Tracker (CSA) -->
+   <!-- OCS Admin & Security Team (CSA) -->
   <div class="ocs__grid-cell CSA" data-year="2026-2027">
-       <a href="{% post_url capstone/2026-09-03-chuds-capstone %}">
-           <img src="/images/backendboyzgcpiccc.png" alt="Backend Boyz - OCS Assignment Tracker" class="ocs__image-frame ocs__image-frame--thumbnail" />
+       <a href="{% post_url capstone/2026-09-03-ocs-admin-security-team %}">
+           <img src="/images/capstone/cccs-security-logo.png" alt="OCS Admin & Security Team" class="ocs__image-frame ocs__image-frame--thumbnail" />
        </a>
        <div>
-           <h3><a href="{% post_url capstone/2026-09-03-chuds-capstone %}">Backend Boyz</a></h3>
-           <p>Developing an easy way for mentors to access Open Coding Society, featuring Google OAuth-verified signup, a scoped capstone project dashboard, real-time team chat, and role-based permissions between students and admins.</p>
-           <p>Team: Backend Boyz (Shayan B, Darshan S, Rudra J, Dhyan S, Harrish A, Lucas M, Zhengli L, Jacob C, Arnav P)</p>
-       </div>
-   </div>
-
-   <!-- OCS Security (CSA) -->
-  <div class="ocs__grid-cell CSA" data-year="2026-2027">
-       <a href="{% post_url capstone/2026-09-03-cccs-security %}">
-           <img src="/images/capstone/cccs-security-logo.png" alt="CCCS Security" class="ocs__image-frame ocs__image-frame--thumbnail" />
-       </a>
-       <div>
-           <h3><a href="{% post_url capstone/2026-09-03-cccs-security %}">OCS Security</a></h3>
-           <p>These security fixes ensure that new users must create complex passwords to prevent unauthorized access, and ensure code runners execute in individual containers to prevent malicious RCEs from accessing sensitive information.</p>
-           <p>Team: Lucas Masterson, Jacob Chou, Zhengji Li</p>
+           <h3><a href="{% post_url capstone/2026-09-03-ocs-admin-security-team %}">OCS Admin & Security Team</a></h3>
+           <p>Opening Open Coding Society to mentors while locking it down: Google OAuth-verified mentor signup, a scoped capstone dashboard with role-based permissions, complex-password enforcement in every layer, and code runners isolated in their own containers to keep malicious code away from sensitive information.</p>
+           <p>Team: Shayan B, Darshan S, Rudra J, Dhyan S, Harrish A, Lucas M, Zhengji L, Jacob C, Arnav P</p>
        </div>
    </div>
 
