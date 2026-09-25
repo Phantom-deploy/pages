@@ -1,347 +1,157 @@
 {% assign data = site.data["ocs-admin-security-team"] %}
 {% comment %}
   Capstone page body for /capstone/ocs-admin-security/.
-  Scoped under .oas so it can't clash with site styles.
-  Each pillar lists what the system does and what's next. To move an item, cut its <li> from one list to the other.
+  Built only from shared ocs__ grammar (_sass/open-coding/elements): no page-specific classes or styles.
+  Each pillar lists what shipped and what's next. To move an item, cut its entry from one list to the other.
 {% endcomment %}
-<div class="oas">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
-<svg class="oas-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><marker id="oas-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="oas-arrowhead" d="M0 0L10 5L0 10z"/></marker></defs></svg>
-<div class="oas-in">
-<header class="oas-hero">
-<img class="oas-logo" src="{{ data.Logo | prepend: '/images/' | relative_url }}" alt="{{ data.TeamName | escape }} logo" width="72" height="72">
-<h1>{{ data.Title | escape }}</h1>
-<p class="oas-tagline">{{ data.Tagline | escape }}</p>
-<ul class="oas-people" aria-label="Team members">
-{%- for member in data.Team -%}<li>{{ member | escape }}</li>
-{%- endfor -%}
+<div class="ocs__container">
+<div class="ocs__card">
+<div class="ocs__badge">Capstone</div>
+<img class="ocs__image-frame ocs__image-frame--thumbnail" src="{{ data.Logo | prepend: '/images/' | relative_url }}" alt="{{ data.TeamName | escape }} logo">
+<p class="ocs__lead">{{ data.Tagline | escape }}</p>
+<div class="ocs__links">
+<a class="ocs__btn medium alert-green fill" href="https://github.com/CSA-Admin-OCS">Our team on GitHub</a>
+<a class="ocs__btn medium" href="https://github.com/Open-Coding-Society/pages">Frontend repo</a>
+<a class="ocs__btn medium" href="https://github.com/Open-Coding-Society/spring">Spring backend</a>
+<a class="ocs__btn medium" href="https://github.com/Open-Coding-Society/flask">Flask backend</a>
+</div>
+<div class="ocs__stats">
+<div class="ocs__stat"><span class="ocs__stat-value">{{ data.Team | size }}</span><span class="ocs__stat-label">team members</span></div>
+<div class="ocs__stat"><span class="ocs__stat-value">3</span><span class="ocs__stat-label">focus areas</span></div>
+<div class="ocs__stat"><span class="ocs__stat-value">3</span><span class="ocs__stat-label">codebases</span></div>
+</div>
+<div class="ocs__callout"><strong>The idea:</strong> every role gets enough access to do its job, and no more. Every check has to hold even when someone skips the website and calls the API directly.</div>
+<div class="ocs__hub-grid">
+<a class="ocs__hub-card" href="#secure"><span class="ocs__nav-card-kicker">Focus 1</span><span class="ocs__hub-card-title">Secure</span><p>Protect accounts and student code.</p></a>
+<a class="ocs__hub-card" href="#manage"><span class="ocs__nav-card-kicker">Focus 2</span><span class="ocs__hub-card-title">Manage</span><p>Keep data and infrastructure reliable.</p></a>
+<a class="ocs__hub-card" href="#expand"><span class="ocs__nav-card-kicker">Focus 3</span><span class="ocs__hub-card-title">Expand</span><p>Add mentor roles and tools.</p></a>
+<a class="ocs__hub-card" href="#vision"><span class="ocs__nav-card-kicker">Beyond</span><span class="ocs__hub-card-title">Vision and teamwork</span><p>Where we are headed and how we work.</p></a>
+</div>
+</div>
+
+<div class="ocs__card" id="secure">
+<h2 class="ocs__section-title">Secure</h2>
+<p class="ocs__lead">Only verified people get in, and student code never touches the platform.</p>
+<div class="ocs__split">
+<div class="ocs__visual"><div class="ocs__team"><span class="ocs__team-label">Owned by</span><span class="ocs__team-name">Jacob C, Lucas M, Zhengji L</span></div></div>
+<div class="ocs__visual"><div class="ocs__team"><span class="ocs__team-label">Built with</span><span class="ocs__team-name"><span class="ocs__status-pill">Spring Boot</span> <span class="ocs__status-pill">Flask</span> <span class="ocs__status-pill">Docker</span> <span class="ocs__status-pill">JWT</span> <span class="ocs__status-pill">Google OAuth2</span></span></div></div>
+</div>
+<h3 class="ocs__section-title">Shipped <span class="ocs__status-pill ocs__status-pill--good">5</span></h3>
+<div class="ocs__keypoints">
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Password rules everywhere.</strong> Enforced in the frontend, Spring, and Flask, so skipping the website still yields no account.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Signup check.</strong> Blocks signups whose GitHub and student ID don't match.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Verified password reset.</strong> Needs Google and GitHub ID verification, is rate-limited, and signs out old tokens.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Safe password sync.</strong> Plaintext sync to Flask is refused over insecure links.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Isolated Flask runner.</strong> Python runs in its own Docker container, never in the main app.</span></div>
+</div>
+<h3 class="ocs__section-title">Next <span class="ocs__status-pill ocs__status-pill--warn">4</span></h3>
+<ul class="ocs__checklist">
+<li><span class="ocs__checklist-box"></span><span><strong>Isolated Spring runner.</strong> Java gets its own container. The API wiring is in progress.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Runner hardening.</strong> Settings move to <code>.env</code>, plus resource limits, timeouts, non-root execution, and restricted network and filesystem.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Spring access control.</strong> Permissions on every endpoint.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Audit log.</strong> A record of important security events.</span></li>
 </ul>
-<ul class="oas-stack" aria-label="Technology">
-{%- for tech in data.Stack -%}<li>{{ tech | escape }}</li>
-{%- endfor -%}
+<h3 class="ocs__section-title">How submitted code is run</h3>
+<div class="ocs__grid ocs__grid--standard cols-4">
+<div class="ocs__grid-cell"><strong>1</strong><br>Student submits code</div>
+<div class="ocs__grid-cell"><strong>2</strong><br>Spring or Flask receives it</div>
+<div class="ocs__grid-cell"><strong>3</strong><br>Runs in a separate container</div>
+<div class="ocs__grid-cell"><strong>4</strong><br>Only the result comes back</div>
+</div>
+<h3 class="ocs__section-title">How a password reset works</h3>
+<div class="ocs__grid ocs__grid--standard cols-3">
+<div class="ocs__grid-cell"><strong>1</strong><br>Reset requested</div>
+<div class="ocs__grid-cell"><strong>2</strong><br>Google and GitHub ID verified</div>
+<div class="ocs__grid-cell"><strong>3</strong><br>Ticket issued, rate-limited</div>
+<div class="ocs__grid-cell"><strong>4</strong><br>Password changed</div>
+<div class="ocs__grid-cell"><strong>5</strong><br>Active tokens invalidated</div>
+</div>
+<div class="ocs__callout"><div class="ocs__links"><a class="ocs__btn medium alert-green fill" href="https://github.com/orgs/CSA-Admin-OCS/projects/5/views/2">See Secure tasks on our GitHub project board</a></div></div>
+</div>
+
+<div class="ocs__card" id="manage">
+<h2 class="ocs__section-title">Manage</h2>
+<p class="ocs__lead">Keep the platform lean, and make changes to its data safe.</p>
+<div class="ocs__split">
+<div class="ocs__visual"><div class="ocs__team"><span class="ocs__team-label">Owned by</span><span class="ocs__team-name">Rudra J, Dhyan S, Lucas M</span></div></div>
+<div class="ocs__visual"><div class="ocs__team"><span class="ocs__team-label">Built with</span><span class="ocs__team-name"><span class="ocs__status-pill">Spring Boot</span> <span class="ocs__status-pill">Docker</span> <span class="ocs__status-pill">Database migrations</span></span></div></div>
+</div>
+<h3 class="ocs__section-title">Shipped <span class="ocs__status-pill ocs__status-pill--good">1</span></h3>
+<div class="ocs__keypoints">
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Docker cleanup.</strong> Redundant images and containers removed.</span></div>
+</div>
+<h3 class="ocs__section-title">Next <span class="ocs__status-pill ocs__status-pill--warn">3</span></h3>
+<ul class="ocs__checklist">
+<li><span class="ocs__checklist-box"></span><span><strong>Production vs. testing config.</strong> Separate Spring settings, so test settings never reach production.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Spring database migration.</strong> Move the Spring data to the new setup.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Automatic upgrades.</strong> Apply database upgrades without manual steps.</span></li>
 </ul>
-<div class="oas-links">
-<a class="oas-btn oas-btn-main" href="https://github.com/CSA-Admin-OCS">Our team on GitHub</a>
-<a class="oas-btn" href="https://github.com/Open-Coding-Society/pages">OCS frontend repo</a>
-<a class="oas-btn" href="https://github.com/Open-Coding-Society/spring">OCS Spring backend</a>
-<a class="oas-btn" href="https://github.com/Open-Coding-Society/flask">OCS Flask backend</a>
+<h3 class="ocs__section-title">How a database change ships</h3>
+<div class="ocs__grid ocs__grid--standard cols-4">
+<div class="ocs__grid-cell"><strong>1</strong><br>Migration is written</div>
+<div class="ocs__grid-cell"><strong>2</strong><br>Migration is reviewed</div>
+<div class="ocs__grid-cell"><strong>3</strong><br>Applied to the database</div>
+<div class="ocs__grid-cell"><strong>4</strong><br>Upgrades run automatically</div>
 </div>
-</header>
-<ul class="oas-stats" aria-label="At a glance">
-<li><strong>{{ data.Team | size }}</strong><span>team members</span></li>
-<li><strong>3</strong><span>focus areas: Secure, Manage, Expand</span></li>
-<li><strong>3</strong><span>codebases: frontend, Spring, Flask</span></li>
+<div class="ocs__callout"><div class="ocs__links"><a class="ocs__btn medium alert-green fill" href="https://github.com/orgs/CSA-Admin-OCS/projects/7/">See Manage tasks on our GitHub project board</a></div></div>
+</div>
+
+<div class="ocs__card" id="expand">
+<h2 class="ocs__section-title">Expand</h2>
+<p class="ocs__lead">New roles get the right access, and nothing more.</p>
+<div class="ocs__split">
+<div class="ocs__visual"><div class="ocs__team"><span class="ocs__team-label">Owned by</span><span class="ocs__team-name">Harrish A, Arnav P, Darshan S, Shayan B, Rudra J</span></div></div>
+<div class="ocs__visual"><div class="ocs__team"><span class="ocs__team-label">Built with</span><span class="ocs__team-name"><span class="ocs__status-pill">Spring Security</span> <span class="ocs__status-pill">Google OAuth2</span> <span class="ocs__status-pill">JWT</span> <span class="ocs__status-pill">GitHub API</span> <span class="ocs__status-pill">Jekyll</span></span></div></div>
+</div>
+<h3 class="ocs__section-title">Shipped <span class="ocs__status-pill ocs__status-pill--good">3</span></h3>
+<div class="ocs__keypoints">
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Mentor role.</strong> <code>ROLE_MENTOR</code> sits between teacher and admin, and a GitHub student ID is checked before it activates.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Mentor login.</strong> Google sign-in with no separate password. PUSD emails get instant access, and other emails wait for admin review.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span><strong>Support pages rework.</strong> A dropdown groups the support tabs, with guides for new students.</span></div>
+</div>
+<h3 class="ocs__section-title">Next <span class="ocs__status-pill ocs__status-pill--warn">4</span></h3>
+<ul class="ocs__checklist">
+<li><span class="ocs__checklist-box"></span><span><strong>Mentor dashboard.</strong> Mentors track only their own groups' progress and notes.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Guest role.</strong> Read-only access to public content, with no full account.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>Approval tickets.</strong> Admins approve Google sign-ins from non-Poway emails.</span></li>
+<li><span class="ocs__checklist-box"></span><span><strong>AI review with mentor design.</strong> Mentor-guided review of student work.</span></li>
 </ul>
-<section class="oas-overview" aria-labelledby="oas-overview-h">
-<div>
-<h2 id="oas-overview-h">What we do</h2>
-<p>{{ data.Description | escape }}</p>
-<div class="oas-row">
-<h3>Secure</h3>
-<p>Protect accounts and student code.</p>
+<h3 class="ocs__section-title">How a mentor gets access</h3>
+<div class="ocs__grid ocs__grid--standard cols-4">
+<div class="ocs__grid-cell"><strong>1</strong><br>Mentor signs in with Google</div>
+<div class="ocs__grid-cell"><strong>2</strong><br>Other emails: admin review</div>
+<div class="ocs__grid-cell"><strong>3</strong><br>Pending role becomes mentor</div>
+<div class="ocs__grid-cell"><strong>4</strong><br>Mentor opens the dashboard</div>
 </div>
-<div class="oas-row">
-<h3>Manage</h3>
-<p>Keep the data and infrastructure reliable.</p>
+<div class="ocs__callout"><div class="ocs__links"><a class="ocs__btn medium alert-green fill" href="https://github.com/orgs/CSA-Admin-OCS/projects/6/">See Expand tasks on our GitHub project board</a></div></div>
 </div>
-<div class="oas-row">
-<h3>Expand</h3>
-<p>Add mentor roles and tools to OCS.</p>
+
+<div class="ocs__card" id="vision">
+<h2 class="ocs__section-title">Our vision</h2>
+<p class="ocs__lead">An OCS anyone can safely join and grow in, with no account, code, or data left exposed.</p>
+<div class="ocs__keypoints">
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span>Every account is verified at every layer.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span>Student code always runs contained.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span>The platform stays easy to maintain.</span></div>
+<div class="ocs__keypoint"><span class="ocs__check">&#10003;</span><span>New roles get the right access, and nothing more.</span></div>
 </div>
-</div>
-<figure class="oas-fig">
-<svg viewBox="0 0 560 476" role="img" aria-label="Overview diagram. Students, teachers, and new roles enter through the Expand layer, pass through the Secure layer, and reach the Manage layer that holds the OCS platform.">
-<rect class="oas-pill" x="60" y="14" width="130" height="40" rx="20"/>
-<text class="oas-t" x="125" y="39" text-anchor="middle">Student</text>
-<rect class="oas-pill" x="215" y="14" width="130" height="40" rx="20"/>
-<text class="oas-t" x="280" y="39" text-anchor="middle">Teacher</text>
-<rect class="oas-pill-new" x="370" y="14" width="130" height="40" rx="20"/>
-<text class="oas-t" x="435" y="39" text-anchor="middle">New roles</text>
-<line class="oas-edge" x1="125" y1="54" x2="125" y2="93" marker-end="url(#oas-arrow)"/>
-<line class="oas-edge" x1="280" y1="54" x2="280" y2="93" marker-end="url(#oas-arrow)"/>
-<line class="oas-edge" x1="435" y1="54" x2="435" y2="93" marker-end="url(#oas-arrow)"/>
-<rect class="oas-lay1" x="16" y="96" width="528" height="364" rx="18"/>
-<text class="oas-lt oas-lt1" x="40" y="128">Expand</text>
-<text class="oas-ls" x="40" y="150">Mentor roles and tools</text>
-<rect class="oas-lay2" x="44" y="172" width="472" height="264" rx="16"/>
-<text class="oas-lt oas-lt2" x="68" y="204">Secure</text>
-<text class="oas-ls" x="68" y="226">Verified sign-in and contained code</text>
-<rect class="oas-lay3" x="72" y="248" width="416" height="164" rx="14"/>
-<text class="oas-lt oas-lt3" x="96" y="280">Manage</text>
-<text class="oas-ls" x="96" y="302">Data, migrations, and upkeep</text>
-<rect class="oas-core" x="96" y="326" width="368" height="64" rx="12"/>
-<text class="oas-t" x="280" y="354" text-anchor="middle">OCS platform</text>
-<text class="oas-ls" x="280" y="375" text-anchor="middle">Accounts, student code, and data</text>
-</svg>
-<figcaption>Everyone reaches the platform through the same layers.</figcaption>
-</figure>
-</section>
-<section class="oas-why" aria-labelledby="oas-hard-h">
-<h2 id="oas-hard-h">Why this is hard</h2>
-<p>Every role needs enough access to do its job and no more. Student code has to run without ever touching the platform it runs on. Every check also has to hold when someone skips the website and calls the API directly.</p>
-</section>
-<nav class="oas-nav" aria-label="Sections">
-<a class="oas-btn" href="#oas-secure">Secure</a>
-<a class="oas-btn" href="#oas-manage">Manage</a>
-<a class="oas-btn" href="#oas-expand">Expand</a>
-<a class="oas-btn" href="#oas-vision">Vision and teamwork</a>
-</nav>
-<!--
-  Screenshot slot: add real images of the work (signup password error, support pages dropdown, mentor login, code runner output).
-  Save files under /images/capstone/ and place a figure inside the matching card, for example:
-  <figure class="oas-fig"><img src="{{ '/images/capstone/YOUR-FILE.png' | relative_url }}" alt="Describe the screenshot"><figcaption>One-line caption.</figcaption></figure>
--->
-<section class="oas-card" id="oas-secure" aria-labelledby="oas-secure-h">
-<div class="oas-phead">
-<span class="oas-ico"><svg class="oas-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
-<div>
-<h2 id="oas-secure-h">Secure</h2>
-<p>Protect accounts and student code.</p>
+<h3 class="ocs__section-title">How we work</h3>
+<div class="ocs__grid ocs__grid--standard cols-2">
+<div class="ocs__grid-cell"><strong>Focused sub-teams</strong><br>Security, admin and database, and mentors. Each owns its area.</div>
+<div class="ocs__grid-cell"><strong>Daily meetings</strong><br>Decide the work and keep the board honest.</div>
+<div class="ocs__grid-cell"><strong>One owner, cap of two</strong><br>Each task has one owner, and the least-loaded member claims first.</div>
+<div class="ocs__grid-cell"><strong>Reviewed and reported</strong><br>Review before done, and a weekly update every Thursday.</div>
 </div>
 </div>
-<div class="oas-owned"><strong>Owned by</strong><ul class="oas-people"><li>Jacob C</li><li>Lucas M</li><li>Zhengji L</li></ul></div>
-<ul class="oas-stack" aria-label="Built with">
-<li>Jekyll Pages</li>
-<li>Spring Boot</li>
-<li>Flask</li>
-<li>Docker</li>
-<li>JWT</li>
-<li>Google OAuth2</li>
-<li>Rate limiting</li>
-</ul>
-<div class="oas-split">
-<div>
-<h3 class="oas-sub oas-sub-does">What it does</h3>
-<ul class="oas-items">
-<li><span class="oas-name">Frontend password validation</span><span class="oas-note">Signup blocks a password that fails the complexity rules and says what's missing. Invalid requests never leave the browser.</span></li>
-<li><span class="oas-name">Spring password enforcement</span><span class="oas-note">Weak passwords are rejected at the account-creation endpoint, so skipping the Pages frontend still yields no account.</span></li>
-<li><span class="oas-name">Flask password enforcement</span><span class="oas-note">The same check runs on Flask's own account-creation route, so both backends apply the same rules.</span></li>
-<li><span class="oas-name">GitHub and student ID check on signup</span><span class="oas-note">Blocks signups that don't match.</span></li>
-<li><span class="oas-name">Password reset</span><span class="oas-note">A reset ticket is issued only after Google OAuth and GitHub ID verification. Tickets are rate-limited per IP, requests work without a signed-in session, and all active JWTs are invalidated when the password changes.</span></li>
-<li><span class="oas-name">Safe password sync to Flask</span><span class="oas-note">Plaintext password sync is refused over non-loopback, non-TLS URIs.</span></li>
-<li><span class="oas-name">Isolated Flask code runner</span><span class="oas-note">Requested Python runs in a dedicated code-runner Docker container. The main Flask container never executes submitted code.</span></li>
-</ul>
-<h3 class="oas-sub oas-sub-next">What's next</h3>
-<ul class="oas-items oas-later">
-<li><span class="oas-name">Isolated Spring code runner</span><span class="oas-note">A new Docker container runs submitted Java. The Spring API controller is being wired to send source code and request data to it and return the result.</span></li>
-<li><span class="oas-name">Runner configuration</span><span class="oas-note">More Flask runner settings move into <code>.env</code>, so they change per environment without touching code.</span></li>
-<li><span class="oas-name">Container hardening</span><span class="oas-note">CPU and memory limits, execution timeouts, filesystem and network restrictions, non-root execution, reduced Linux capabilities, and extra sandboxing. Every submitted program stays untrusted.</span></li>
-<li><span class="oas-name">Spring API access control</span><span class="oas-note">Permissions on every endpoint, following the written plan.</span></li>
-<li><span class="oas-name">Security log and audit system</span><span class="oas-note">A record of important security events.</span></li>
-</ul>
+
+<div class="ocs__card">
+<h2 class="ocs__section-title">Following along</h2>
+<div class="ocs__links">
+<a class="ocs__btn medium alert-green fill" href="https://github.com/CSA-Admin-OCS/pages">Main repo</a>
+<a class="ocs__btn medium" href="https://github.com/orgs/CSA-Admin-OCS/projects/1">Project board</a>
+<a class="ocs__btn medium" href="https://github.com/CSA-Admin-OCS/spring">Spring repo</a>
+<a class="ocs__btn medium" href="https://github.com/CSA-Admin-OCS/flask">Flask repo</a>
+<a class="ocs__btn medium" href="https://github.com/CSA-Admin-OCS/pages/issues/26">Future work (issue #26)</a>
 </div>
-<div class="oas-diagrams">
-<figure class="oas-fig oas-flowfig">
-<svg class="oas-flow" viewBox="0 0 320 280" role="img" aria-label="How submitted code is run: the student submits code, Spring or Flask receives it, a separate runner container runs it, and only the result comes back.">
-<rect class="oas-node" x="10" y="2" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="26" r="11"/>
-<text class="oas-nt" x="32" y="30.5" text-anchor="middle">1</text>
-<text class="oas-t" x="54" y="31">Student submits code</text>
-<line class="oas-edge" x1="32" y1="50" x2="32" y2="75" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="78" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="102" r="11"/>
-<text class="oas-nt" x="32" y="106.5" text-anchor="middle">2</text>
-<text class="oas-t" x="54" y="107">Spring or Flask receives it</text>
-<line class="oas-edge" x1="32" y1="126" x2="32" y2="151" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="154" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="178" r="11"/>
-<text class="oas-nt" x="32" y="182.5" text-anchor="middle">3</text>
-<text class="oas-t" x="54" y="183">Runs in a separate container</text>
-<line class="oas-edge" x1="32" y1="202" x2="32" y2="227" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="230" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="254" r="11"/>
-<text class="oas-nt" x="32" y="258.5" text-anchor="middle">4</text>
-<text class="oas-t" x="54" y="259">Only the result comes back</text>
-</svg>
-<figcaption>How submitted code is run</figcaption>
-</figure>
-<figure class="oas-fig oas-flowfig">
-<svg class="oas-flow" viewBox="0 0 320 356" role="img" aria-label="How a password reset works: reset requested, Google and GitHub ID verified, a rate-limited ticket issued, the password changed, and all active tokens invalidated.">
-<rect class="oas-node" x="10" y="2" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="26" r="11"/>
-<text class="oas-nt" x="32" y="30.5" text-anchor="middle">1</text>
-<text class="oas-t" x="54" y="31">Reset requested</text>
-<line class="oas-edge" x1="32" y1="50" x2="32" y2="75" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="78" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="102" r="11"/>
-<text class="oas-nt" x="32" y="106.5" text-anchor="middle">2</text>
-<text class="oas-t" x="54" y="107">Google and GitHub ID verified</text>
-<line class="oas-edge" x1="32" y1="126" x2="32" y2="151" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="154" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="178" r="11"/>
-<text class="oas-nt" x="32" y="182.5" text-anchor="middle">3</text>
-<text class="oas-t" x="54" y="183">Ticket issued, rate-limited</text>
-<line class="oas-edge" x1="32" y1="202" x2="32" y2="227" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="230" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="254" r="11"/>
-<text class="oas-nt" x="32" y="258.5" text-anchor="middle">4</text>
-<text class="oas-t" x="54" y="259">Password changed</text>
-<line class="oas-edge" x1="32" y1="278" x2="32" y2="303" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="306" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="330" r="11"/>
-<text class="oas-nt" x="32" y="334.5" text-anchor="middle">5</text>
-<text class="oas-t" x="54" y="335">Active tokens invalidated</text>
-</svg>
-<figcaption>How a password reset works</figcaption>
-</figure>
-</div>
-</div>
-<div class="oas-bigbtn"><a class="oas-btn oas-btn-main oas-btn-big" href="https://github.com/orgs/CSA-Admin-OCS/projects/5/views/2">See Secure tasks on our GitHub project board</a></div>
-</section>
-<section class="oas-card" id="oas-manage" aria-labelledby="oas-manage-h">
-<div class="oas-phead">
-<span class="oas-ico"><svg class="oas-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span>
-<div>
-<h2 id="oas-manage-h">Manage</h2>
-<p>Keep the data and infrastructure reliable.</p>
-</div>
-</div>
-<div class="oas-owned"><strong>Owned by</strong><ul class="oas-people"><li>Rudra J</li><li>Dhyan S</li><li>Lucas M</li></ul></div>
-<ul class="oas-stack" aria-label="Built with">
-<li>Spring Boot</li>
-<li>Docker</li>
-<li>Database migrations</li>
-</ul>
-<div class="oas-split">
-<div>
-<h3 class="oas-sub oas-sub-does">What it does</h3>
-<ul class="oas-items">
-<li><span class="oas-name">Docker cleanup</span><span class="oas-note">Redundant images and containers removed to keep the setup lean.</span></li>
-</ul>
-<h3 class="oas-sub oas-sub-next">What's next</h3>
-<ul class="oas-items oas-later">
-<li><span class="oas-name">Production vs. testing configuration</span><span class="oas-note">Separate Spring backend configurations, so testing and development settings are never used in production. Environment-specific settings stay apart, endpoints and services are controlled by environment, and debugging exposure is reduced in production.</span></li>
-<li><span class="oas-name">Spring database migration</span><span class="oas-note">Moves the Spring data to the new setup.</span></li>
-<li><span class="oas-name">Automatic database upgrades</span><span class="oas-note">Apply upgrades without manual steps.</span></li>
-</ul>
-</div>
-<figure class="oas-fig oas-flowfig">
-<svg class="oas-flow" viewBox="0 0 320 280" role="img" aria-label="How a database change ships: it is written as a migration, reviewed, applied to the database, and later upgrades run automatically.">
-<rect class="oas-node" x="10" y="2" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="26" r="11"/>
-<text class="oas-nt" x="32" y="30.5" text-anchor="middle">1</text>
-<text class="oas-t" x="54" y="31">Migration is written</text>
-<line class="oas-edge" x1="32" y1="50" x2="32" y2="75" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="78" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="102" r="11"/>
-<text class="oas-nt" x="32" y="106.5" text-anchor="middle">2</text>
-<text class="oas-t" x="54" y="107">Migration is reviewed</text>
-<line class="oas-edge" x1="32" y1="126" x2="32" y2="151" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="154" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="178" r="11"/>
-<text class="oas-nt" x="32" y="182.5" text-anchor="middle">3</text>
-<text class="oas-t" x="54" y="183">Applied to the database</text>
-<line class="oas-edge" x1="32" y1="202" x2="32" y2="227" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="230" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="254" r="11"/>
-<text class="oas-nt" x="32" y="258.5" text-anchor="middle">4</text>
-<text class="oas-t" x="54" y="259">Upgrades run automatically</text>
-</svg>
-<figcaption>How a database change ships</figcaption>
-</figure>
-</div>
-<div class="oas-bigbtn"><a class="oas-btn oas-btn-main oas-btn-big" href="https://github.com/orgs/CSA-Admin-OCS/projects/7/">See Manage tasks on our GitHub project board</a></div>
-</section>
-<section class="oas-card" id="oas-expand" aria-labelledby="oas-expand-h">
-<div class="oas-phead">
-<span class="oas-ico oas-ico-b"><svg class="oas-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M19 8v6M16 11h6"/></svg></span>
-<div>
-<h2 id="oas-expand-h">Expand</h2>
-<p>Add mentor roles and tools to OCS.</p>
-</div>
-</div>
-<div class="oas-owned"><strong>Owned by</strong><ul class="oas-people"><li>Harrish A</li><li>Arnav P</li><li>Darshan S</li><li>Shayan B</li><li>Rudra J</li></ul></div>
-<ul class="oas-stack" aria-label="Built with">
-<li>Spring Security</li>
-<li>Google OAuth2</li>
-<li>JWT</li>
-<li>GitHub API</li>
-<li>Jekyll</li>
-</ul>
-<div class="oas-split">
-<div>
-<h3 class="oas-sub oas-sub-does">What it does</h3>
-<ul class="oas-items">
-<li><span class="oas-name">Mentor role and verification</span><span class="oas-note">ROLE_MENTOR sits in Spring Security between ROLE_TEACHER and ROLE_ADMIN, and a pending role handles assignment. A GitHub student ID is validated before a mentor account activates.</span></li>
-<li><span class="oas-name">Mentor login</span><span class="oas-note">Sign in with Google, with no separate password. PUSD emails get immediate access, and other emails wait for admin review.</span></li>
-<li><span class="oas-name">Mentor authentication in the database</span><span class="oas-note">Mentor accounts are stored and checked.</span></li>
-<li><span class="oas-name">Support pages rework</span><span class="oas-note">Dropdown menu that groups the support tabs, with guides for new students.</span></li>
-</ul>
-<h3 class="oas-sub oas-sub-next">What's next</h3>
-<ul class="oas-items oas-later">
-<li><span class="oas-name">Mentor dashboard</span><span class="oas-note">A central view for mentors to track assigned capstone groups, student progress, and session notes. Mentors see only their own groups, and access stays limited to mentors and above.</span></li>
-<li><span class="oas-name">Guest role</span><span class="oas-note">Read-only access for visitors to browse public OCS content without a full account.</span></li>
-<li><span class="oas-name">Approval tickets for non-Poway emails</span><span class="oas-note">Google sign-in for other business emails, with a ticket that an admin approves.</span></li>
-<li><span class="oas-name">AI review with mentor design</span><span class="oas-note">Mentor-guided review of student work.</span></li>
-</ul>
-</div>
-<figure class="oas-fig oas-flowfig">
-<svg class="oas-flow oas-blue" viewBox="0 0 320 280" role="img" aria-label="How a mentor gets access: the mentor signs in with Google, other emails wait for admin review, the pending role becomes a mentor role, and the mentor opens the dashboard.">
-<rect class="oas-node" x="10" y="2" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="26" r="11"/>
-<text class="oas-nt" x="32" y="30.5" text-anchor="middle">1</text>
-<text class="oas-t" x="54" y="31">Mentor signs in with Google</text>
-<line class="oas-edge" x1="32" y1="50" x2="32" y2="75" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="78" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="102" r="11"/>
-<text class="oas-nt" x="32" y="106.5" text-anchor="middle">2</text>
-<text class="oas-t" x="54" y="107">Other emails: admin review</text>
-<line class="oas-edge" x1="32" y1="126" x2="32" y2="151" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="154" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="178" r="11"/>
-<text class="oas-nt" x="32" y="182.5" text-anchor="middle">3</text>
-<text class="oas-t" x="54" y="183">Pending role becomes mentor</text>
-<line class="oas-edge" x1="32" y1="202" x2="32" y2="227" marker-end="url(#oas-arrow)"/>
-<rect class="oas-node" x="10" y="230" width="300" height="48" rx="12"/>
-<circle class="oas-num" cx="32" cy="254" r="11"/>
-<text class="oas-nt" x="32" y="258.5" text-anchor="middle">4</text>
-<text class="oas-t" x="54" y="259">Mentor opens the dashboard</text>
-</svg>
-<figcaption>How a mentor gets access</figcaption>
-</figure>
-</div>
-<div class="oas-bigbtn"><a class="oas-btn oas-btn-main oas-btn-big" href="https://github.com/orgs/CSA-Admin-OCS/projects/6/">See Expand tasks on our GitHub project board</a></div>
-</section>
-<section class="oas-card oas-vision" id="oas-vision" aria-labelledby="oas-vision-h">
-<h2 id="oas-vision-h">Our vision</h2>
-<p class="oas-big">An OCS that anyone can safely join and grow in: open to students, teachers, and mentors, and locked down enough that no account, code, or data is left exposed.</p>
-<h3>What we're working toward</h3>
-<ul class="oas-goals">
-<li>Every account is verified and protected at every layer, from the signup form to both backends.</li>
-<li>Student code always runs contained and never inside the main application.</li>
-<li>The platform stays easy to maintain, with lean containers, safe migrations, and separate testing and production settings.</li>
-<li>A mentor system gives new roles the right access, and nothing more.</li>
-</ul>
-<h3>How we work together</h3>
-<div class="oas-how">
-<div>
-<h3>Focused sub-teams</h3>
-<p>We split into groups for security, admin and database, and the mentor system, and each group owns its area from design to review.</p>
-</div>
-<div>
-<h3>Daily meetings</h3>
-<p>We meet every day to decide what gets done and to keep the shared board honest.</p>
-</div>
-<div>
-<h3>One owner, a cap of two</h3>
-<p>Every task has one named owner, and no one holds more than two at a time. Whoever has the least work claims first, so the load stays even.</p>
-</div>
-<div>
-<h3>Reviewed and reported</h3>
-<p>Changes move through review before they count as done, and every member adds to a weekly update each Thursday.</p>
-</div>
-</div>
-</section>
-<section class="oas-card oas-follow" id="oas-follow" aria-labelledby="oas-follow-h">
-<h2 id="oas-follow-h">Following along</h2>
-<p>Where our work lives, from the code to the board and the issues behind each feature.</p>
-<div class="oas-links">
-<a class="oas-btn oas-btn-main" href="https://github.com/CSA-Admin-OCS/pages">Our main repo</a>
-<a class="oas-btn" href="https://github.com/orgs/CSA-Admin-OCS/projects/1">Project board</a>
-<a class="oas-btn" href="https://github.com/CSA-Admin-OCS/spring">Our Spring repo</a>
-<a class="oas-btn" href="https://github.com/CSA-Admin-OCS/flask">Our Flask repo</a>
-<a class="oas-btn" href="https://github.com/CSA-Admin-OCS/pages/issues/26">Future work, whole group (issue #26)</a>
-</div>
-</section>
 </div>
 </div>
