@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with: 
-         ref: lessons-3.3-3.6*
+         ref: main
          fetch-depth: 0 # fetch all histroy
 
       - name: Configure Git
@@ -28,11 +28,11 @@ jobs:
         run: |
           git remote add upstream https://github.com/CSA-Admin-OCS/pages.git
           git fetch upstream
-# only merge to lessons-3.3-3.6 branch
+# change to merge main
       - name: Merge Upstream
         run: |
-          git merge upstream/lessons-3.3-3.6 --allow-unrelated-histories -m "Merge upstream changes"          
+          git merge upstream/main --allow-unrelated-histories -m "Merge upstream changes"          
 
       - name: Push Changes
         run: |
-          git push origin HEAD:lessons-3.3-3.6
+          git push origin HEAD:main
