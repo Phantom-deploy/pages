@@ -40,7 +40,7 @@ import { BaseRunner, UiExecutor } from '{{ site.baseurl }}/assets/js/pages/runne
   const storageKey = container.dataset.storageKey;
   const runner = new BaseRunner(container, { storageKey });
 
-  const editor = runner.initializeEditor({
+  const initializedEditor = runner.initializeEditor({
     defaultCode,
     editorHeight,
     fallbackCode: "// Write your JavaScript code here",
@@ -53,6 +53,11 @@ import { BaseRunner, UiExecutor } from '{{ site.baseurl }}/assets/js/pages/runne
       styleSelectedText: true
     }
   });
+  // CodeMirror is an optional CDN dependency; preserve editing and execution
+  // through the source textarea when it cannot be loaded.
+  const editor = initializedEditor || {
+    getValue: () => runner.getValue(),
+  };
 
   if (outputHeight) {
     runner.applyScopedStyle(`#ui-output-{{ include.runner_id }} { min-height: ${outputHeight}; max-height: ${outputHeight}; height: ${outputHeight}; }`);

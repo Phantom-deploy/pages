@@ -128,7 +128,7 @@ import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api
   const storageKey = container.dataset.storageKey;
   const runner = new BaseRunner(container, { storageKey });
 
-  const editor = runner.initializeEditor({
+  const initializedEditor = runner.initializeEditor({
     defaultCode,
     editorHeight,
     fallbackCode: "print('Hello, world!')",
@@ -141,6 +141,14 @@ import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api
       styleSelectedText: true
     }
   });
+  // Keep the runner usable when the optional CodeMirror CDN is unavailable.
+  // EditorManager already leaves the source textarea in place as a fallback.
+  const editor = initializedEditor || {
+    getValue: () => runner.getValue(),
+    on: () => {},
+    setOption: () => {},
+    refresh: () => {},
+  };
 
   const langSelect = container.querySelector('.languageSelect');
   const fontSizeSelect = container.querySelector('.fontSizeSelect');
@@ -182,7 +190,8 @@ import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api
   // Font size changer
   fontSizeSelect.addEventListener("change", () => {
     const size = fontSizeSelect.value;
-    container.querySelector('.CodeMirror').style.fontSize = size + 'px';
+    const editorElement = container.querySelector('.CodeMirror');
+    if (editorElement) editorElement.style.fontSize = size + 'px';
     editor.refresh();
   });
 
