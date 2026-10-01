@@ -25,21 +25,6 @@
     @include input-panel;
   }
 
-  // Keep the source editor usable if the optional CodeMirror CDN is blocked.
-  .editor-textarea {
-    box-sizing: border-box;
-    display: block;
-    width: 100%;
-    min-height: 300px;
-    padding: 1rem;
-    border: 1px solid var(--ui-border);
-    border-radius: 0.75rem;
-    background: var(--pref-bg-color);
-    color: var(--pref-text-color);
-    font: 0.95rem/1.5 monospace;
-    resize: vertical;
-  }
-
   .CodeMirror-gutters {
     background: var(--pref-bg-color);
     border: 1px solid var(--ui-border);
