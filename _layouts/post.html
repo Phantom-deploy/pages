@@ -1775,6 +1775,71 @@ Check if this is a course lesson and determine which course context to use
         Submit Assignment
       </h3>
 
+      <div class="self-assessment" id="self-assessment-blog">
+        <h4 class="self-assessment-title">
+          <i class="fas fa-clipboard-check"></i>
+          Self-Assessment
+        </h4>
+        <p class="self-assessment-hint">Rate your work on this assignment, then add a short reflection. All 5 fields are required before you can submit.</p>
+
+        <fieldset class="rating-group" data-field="technicalExcellence">
+          <legend class="rating-label">Technical Excellence</legend>
+          <p class="rating-question">Rate the technical quality of your work on this assignment — your use of tools, problem-solving, and technical growth.</p>
+          <div class="rating-scale" role="radiogroup" aria-label="Technical Excellence rating">
+            <label class="rating-option"><input type="radio" name="sa-technicalExcellence-blog" value="1"><span>1</span></label>
+            <label class="rating-option"><input type="radio" name="sa-technicalExcellence-blog" value="2"><span>2</span></label>
+            <label class="rating-option"><input type="radio" name="sa-technicalExcellence-blog" value="3"><span>3</span></label>
+            <label class="rating-option"><input type="radio" name="sa-technicalExcellence-blog" value="4"><span>4</span></label>
+            <label class="rating-option"><input type="radio" name="sa-technicalExcellence-blog" value="5"><span>5</span></label>
+          </div>
+          <div class="rating-scale-hint">1 Explore &middot; 2 Understand &middot; 3 Apply &middot; 4 Analyze/Evaluate &middot; 5 Create/Extend</div>
+        </fieldset>
+
+        <fieldset class="rating-group" data-field="communication">
+          <legend class="rating-label">Communication</legend>
+          <p class="rating-question">Rate how clearly you communicated your work and process — explanations, documentation, and collaboration or help-seeking.</p>
+          <div class="rating-scale" role="radiogroup" aria-label="Communication rating">
+            <label class="rating-option"><input type="radio" name="sa-communication-blog" value="1"><span>1</span></label>
+            <label class="rating-option"><input type="radio" name="sa-communication-blog" value="2"><span>2</span></label>
+            <label class="rating-option"><input type="radio" name="sa-communication-blog" value="3"><span>3</span></label>
+            <label class="rating-option"><input type="radio" name="sa-communication-blog" value="4"><span>4</span></label>
+            <label class="rating-option"><input type="radio" name="sa-communication-blog" value="5"><span>5</span></label>
+          </div>
+          <div class="rating-scale-hint">1 Beginning &middot; 2 Developing &middot; 3 Consistent &middot; 4 Strong &middot; 5 Model</div>
+        </fieldset>
+
+        <fieldset class="rating-group" data-field="workHabits">
+          <legend class="rating-label">Work Habits</legend>
+          <p class="rating-question">Rate your work habits on this assignment — time management, persistence, responsibility, and follow-through.</p>
+          <div class="rating-scale" role="radiogroup" aria-label="Work Habits rating">
+            <label class="rating-option"><input type="radio" name="sa-workHabits-blog" value="1"><span>1</span></label>
+            <label class="rating-option"><input type="radio" name="sa-workHabits-blog" value="2"><span>2</span></label>
+            <label class="rating-option"><input type="radio" name="sa-workHabits-blog" value="3"><span>3</span></label>
+            <label class="rating-option"><input type="radio" name="sa-workHabits-blog" value="4"><span>4</span></label>
+            <label class="rating-option"><input type="radio" name="sa-workHabits-blog" value="5"><span>5</span></label>
+          </div>
+          <div class="rating-scale-hint">1 Beginning &middot; 2 Developing &middot; 3 Consistent &middot; 4 Strong &middot; 5 Model</div>
+        </fieldset>
+
+        <fieldset class="rating-group" data-field="aiOrchestration">
+          <legend class="rating-label">AI Orchestration</legend>
+          <p class="rating-question">Rate how effectively you used AI tools to support your work — prompting, verifying, extending, or accelerating your development process.</p>
+          <div class="rating-scale" role="radiogroup" aria-label="AI Orchestration rating">
+            <label class="rating-option"><input type="radio" name="sa-aiOrchestration-blog" value="1"><span>1</span></label>
+            <label class="rating-option"><input type="radio" name="sa-aiOrchestration-blog" value="2"><span>2</span></label>
+            <label class="rating-option"><input type="radio" name="sa-aiOrchestration-blog" value="3"><span>3</span></label>
+            <label class="rating-option"><input type="radio" name="sa-aiOrchestration-blog" value="4"><span>4</span></label>
+            <label class="rating-option"><input type="radio" name="sa-aiOrchestration-blog" value="5"><span>5</span></label>
+          </div>
+          <div class="rating-scale-hint">1 Explore &middot; 2 Understand &middot; 3 Apply &middot; 4 Analyze/Evaluate &middot; 5 Create/Extend</div>
+        </fieldset>
+
+        <div class="form-group self-assessment-reflection">
+          <label for="self-assessment-reflection-blog">Reflection</label>
+          <textarea id="self-assessment-reflection-blog" placeholder="In a few sentences, describe what you learned, struggled with, or accomplished on this assignment. Include one specific example."></textarea>
+        </div>
+      </div>
+
       {% if submission_type == "link" or submission_type == "github_issue" %}
       {% if submission_type == "github_issue" %}
         {% assign link_label = "GitHub Issue Link" %}
@@ -2062,6 +2127,64 @@ Check if this is a course lesson and determine which course context to use
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
       }
 
+      // Self-assessment: collect, validate & reset (mirrors the course-lesson
+      // branch's setupSelfAssessmentRatings/getSelfAssessmentData above — this
+      // branch renders its own markup with -blog suffixed ids/names, so it needs
+      // its own copy rather than sharing functions across branches that never
+      // render on the same page).
+      const SELF_ASSESSMENT_RATING_FIELDS_BLOG = {
+        technicalExcellence: 'Technical Excellence',
+        communication: 'Communication',
+        workHabits: 'Work Habits',
+        aiOrchestration: 'AI Orchestration'
+      };
+
+      function getSelfAssessmentDataBlog() {
+        const data = {};
+        for (const field of Object.keys(SELF_ASSESSMENT_RATING_FIELDS_BLOG)) {
+          const checked = document.querySelector(`input[name="sa-${field}-blog"]:checked`);
+          data[field] = checked ? parseInt(checked.value, 10) : null;
+        }
+        data.selfAssessmentReflection = document.getElementById('self-assessment-reflection-blog')?.value.trim() || '';
+        return data;
+      }
+
+      function validateSelfAssessmentBlog(data) {
+        for (const [field, label] of Object.entries(SELF_ASSESSMENT_RATING_FIELDS_BLOG)) {
+          const value = data[field];
+          if (!Number.isInteger(value) || value < 1 || value > 5) {
+            return `Please rate "${label}" before submitting.`;
+          }
+        }
+        if (!data.selfAssessmentReflection) {
+          return 'Please add a short self-assessment reflection before submitting.';
+        }
+        return null;
+      }
+
+      function resetSelfAssessmentBlog() {
+        document.querySelectorAll('#self-assessment-blog input[type="radio"]').forEach(input => {
+          input.checked = false;
+          input.closest('.rating-option')?.classList.remove('selected');
+        });
+        const reflection = document.getElementById('self-assessment-reflection-blog');
+        if (reflection) reflection.value = '';
+      }
+
+      function setupSelfAssessmentRatingsBlog() {
+        const container = document.getElementById('self-assessment-blog');
+        if (!container) return;
+        container.addEventListener('change', (e) => {
+          const input = e.target;
+          if (input.tagName !== 'INPUT' || input.type !== 'radio') return;
+          const group = input.closest('.rating-scale');
+          if (!group) return;
+          group.querySelectorAll('.rating-option').forEach(opt => opt.classList.remove('selected'));
+          input.closest('.rating-option')?.classList.add('selected');
+        });
+      }
+      setupSelfAssessmentRatingsBlog();
+
       // Helper: resolve current user's UID and numeric person ID
       async function resolveCurrentUserBlog() {
         const uidRes = await fetch(`${pythonURI}/api/id`, { ...fetchOptions });
@@ -2085,6 +2208,12 @@ Check if this is a course lesson and determine which course context to use
             showStatusBlog('error', 'That is not a valid GitHub issue link (expected github.com/owner/repo/issues/N).');
             return;
           }
+          const selfAssessment = getSelfAssessmentDataBlog();
+          const selfAssessmentError = validateSelfAssessmentBlog(selfAssessment);
+          if (selfAssessmentError) {
+            showStatusBlog('error', selfAssessmentError);
+            return;
+          }
           btn.disabled = true;
           showStatusBlog('loading', 'Submitting...');
           try {
@@ -2100,7 +2229,12 @@ Check if this is a course lesson and determine which course context to use
                 isGroupSubmission: false,
                 content,
                 comment: description,
-                isLate: false
+                isLate: false,
+                technicalExcellence: selfAssessment.technicalExcellence,
+                communication: selfAssessment.communication,
+                workHabits: selfAssessment.workHabits,
+                aiOrchestration: selfAssessment.aiOrchestration,
+                selfAssessmentReflection: selfAssessment.selfAssessmentReflection
               })
             });
             if (!res.ok) {
@@ -2113,10 +2247,11 @@ Check if this is a course lesson and determine which course context to use
             await fetch(`${javaURI}/api/grades`, {
               ...fetchOptions,
               method: 'POST',
-              body: JSON.stringify({ uid, assignment: assignmentLabel, score: null, submission: content, submittedAt: new Date().toISOString() })
+              body: JSON.stringify({ uid, assignment: assignmentLabel, score: null, submission: { ...content, selfAssessment }, submittedAt: new Date().toISOString() })
             }).catch(() => {});
             showStatusBlog('success', 'Link submitted successfully!');
             this.reset();
+            resetSelfAssessmentBlog();
           } catch (err) {
             showStatusBlog('error', err.message);
           } finally {
@@ -2136,6 +2271,12 @@ Check if this is a course lesson and determine which course context to use
           }
           const notes = document.getElementById('file-notes-blog').value.trim();
           const btn = document.getElementById('file-submit-btn-blog');
+          const selfAssessment = getSelfAssessmentDataBlog();
+          const selfAssessmentError = validateSelfAssessmentBlog(selfAssessment);
+          if (selfAssessmentError) {
+            showStatusBlog('error', selfAssessmentError);
+            return;
+          }
           btn.disabled = true;
           showStatusBlog('loading', 'Uploading...');
           try {
@@ -2165,6 +2306,11 @@ Check if this is a course lesson and determine which course context to use
               fd.append('username', uid);
               fd.append('file', file);
               if (notes) fd.append('notes', notes);
+              fd.append('technicalExcellence', String(selfAssessment.technicalExcellence));
+              fd.append('communication', String(selfAssessment.communication));
+              fd.append('workHabits', String(selfAssessment.workHabits));
+              fd.append('aiOrchestration', String(selfAssessment.aiOrchestration));
+              fd.append('selfAssessmentReflection', selfAssessment.selfAssessmentReflection);
               const r = await fetch(`${javaURI}/api/assignment-submissions/upload`, {
                 method: 'POST',
                 mode: fetchOptions.mode,
@@ -2182,13 +2328,14 @@ Check if this is a course lesson and determine which course context to use
               await fetch(`${javaURI}/api/grades`, {
                 ...fetchOptions,
                 method: 'POST',
-                body: JSON.stringify({ uid, assignment: assignmentLabel, score: null, submission: content, submittedAt: new Date().toISOString() })
+                body: JSON.stringify({ uid, assignment: assignmentLabel, score: null, submission: { ...content, selfAssessment }, submittedAt: new Date().toISOString() })
               }).catch(() => {});
             }
             showStatusBlog('success', `${selectedFilesBlog.length} file(s) submitted successfully!`);
             selectedFilesBlog = [];
             updateFileListBlog();
             this.reset();
+            resetSelfAssessmentBlog();
           } catch (err) {
             showStatusBlog('error', err.message);
           } finally {
@@ -2217,6 +2364,12 @@ Check if this is a course lesson and determine which course context to use
             showStatusBlog('error', "No saved code found in this lesson's code runner(s).");
             return;
           }
+          const selfAssessment = getSelfAssessmentDataBlog();
+          const selfAssessmentError = validateSelfAssessmentBlog(selfAssessment);
+          if (selfAssessmentError) {
+            showStatusBlog('error', selfAssessmentError);
+            return;
+          }
           btn.disabled = true;
           showStatusBlog('loading', 'Checking login...');
           let uid, personId;
@@ -2241,7 +2394,12 @@ Check if this is a course lesson and determine which course context to use
                 isGroupSubmission: false,
                 content,
                 comment: notes,
-                isLate: false
+                isLate: false,
+                technicalExcellence: selfAssessment.technicalExcellence,
+                communication: selfAssessment.communication,
+                workHabits: selfAssessment.workHabits,
+                aiOrchestration: selfAssessment.aiOrchestration,
+                selfAssessmentReflection: selfAssessment.selfAssessmentReflection
               })
             });
             if (!res.ok) {
@@ -2253,10 +2411,11 @@ Check if this is a course lesson and determine which course context to use
             await fetch(`${javaURI}/api/grades`, {
               ...fetchOptions,
               method: 'POST',
-              body: JSON.stringify({ uid, assignment: assignmentLabel, score: null, submission: content, submittedAt: new Date().toISOString() })
+              body: JSON.stringify({ uid, assignment: assignmentLabel, score: null, submission: { ...content, selfAssessment }, submittedAt: new Date().toISOString() })
             }).catch(() => {});
             showStatusBlog('success', 'Code submitted successfully!');
             this.reset();
+            resetSelfAssessmentBlog();
           } catch (err) {
             showStatusBlog('error', err.message);
           } finally {
