@@ -1851,6 +1851,75 @@ Check if this is a course lesson and determine which course context to use
       const FRONTMATTER_ASSIGNMENT_NAME_BLOG = {{ page.assignment_name | default: nil | jsonify }};
       const SUBMISSION_TYPE_BLOG = {{ page.assignment_submission_type | default: "file" | downcase | jsonify }};
       const GITHUB_ISSUE_URL_PATTERN_BLOG = /^https?:\/\/github\.com\/[^/]+\/[^/#?]+\/issues\/\d+\/?$/i;
+      // This branch (pages whose frontmatter doesn't resolve a course/week - see
+      // is_course_lesson at the top of this layout) never had a working auto-create
+      // implementation: ensureAssignmentIdBlog() below only ever fell back to a static
+      // frontmatter assignment_id or threw, because the real implementation lived
+      // exclusively in the other branch's script, which never renders here. A course
+      // was never actually required by the backend - this was a frontend gap where
+      // the "blog" layout's assignment support was always a stub.
+      const CURRENT_LESSON_ID_BLOG = '{{ page.url }}';
+      let CURRENT_ASSIGNMENT_ID_BLOG = FRONTMATTER_ASSIGNMENT_ID_BLOG;
+      let CURRENT_ASSIGNMENT_NAME_BLOG = FRONTMATTER_ASSIGNMENT_NAME_BLOG;
+      let ASSIGNMENT_RESOLVE_PROMISE_BLOG = null;
+
+      async function autoCreateAssignmentIfNeededBlog() {
+        const hasAssignment = {{ page.assignment | default: false }};
+        if (!hasAssignment) {
+          return; // Not an assignment page
+        }
+
+        try {
+          // Call the Spring API to auto-create assignment
+          // This endpoint allows any authenticated user (student, person, teacher, admin)
+          const createRes = await fetch(`${javaURI}/api/assignments/auto-create`, {
+            ...fetchOptions,
+            method: 'POST',
+            headers: {
+              ...fetchOptions.headers,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              name: {{ page.title | jsonify }},
+              contentUrl: CURRENT_LESSON_ID_BLOG.replace(/^\/+|\/+$/g, ''),
+              description: {{ page.description | default: "" | jsonify }},
+              assignmentType: SUBMISSION_TYPE_BLOG,
+              pageContent: {{ page.content | strip_html | normalize_whitespace | truncate: 8000 | jsonify }}
+            })
+          });
+
+          if (createRes.ok) {
+            const result = await createRes.json();
+            CURRENT_ASSIGNMENT_ID_BLOG = result.id;
+            CURRENT_ASSIGNMENT_NAME_BLOG = result.name;
+            window.ASSIGNMENT_ID = result.id;
+            window.ASSIGNMENT_NAME = result.name;
+
+            if (createRes.status === 201) {
+              console.log('✓ Assignment auto-created with ID:', result.id);
+            } else if (createRes.status === 200) {
+              console.log('ℹ Assignment already exists with ID:', result.id, '- reusing for this session');
+            } else {
+              console.log('Assignment resolved with ID:', result.id);
+            }
+          } else if (createRes.status === 401 || createRes.status === 403) {
+            console.warn('Assignment creation requires an active Spring login session. Please log in and refresh the page.');
+          } else if (createRes.status === 400) {
+            const error = await createRes.json();
+            console.error('Bad request for auto-create assignment:', error.error);
+          } else {
+            console.error('Failed to auto-create assignment:', createRes.status, createRes.statusText);
+          }
+        } catch (error) {
+          console.error('Error auto-creating assignment:', error);
+        }
+      }
+
+      // window.javaURI/fetchOptions come from a module script further down the page,
+      // which (like all module scripts) runs deferred - only after DOMContentLoaded is
+      // it guaranteed to have executed, matching the pattern already used below for
+      // renderCodeRunnerSummaryBlog.
+      document.addEventListener('DOMContentLoaded', autoCreateAssignmentIfNeededBlog);
 
       function renderCodeRunnerSummaryBlog() {
         const list = document.getElementById('code-runner-summary-blog');
@@ -1870,12 +1939,25 @@ Check if this is a course lesson and determine which course context to use
       }
 
       async function ensureAssignmentIdBlog() {
-        if (typeof ensureAssignmentId === 'function') {
-          return await ensureAssignmentId();
+        const hasAssignment = {{ page.assignment | default: false }};
+        if (!hasAssignment) {
+          if (!CURRENT_ASSIGNMENT_ID_BLOG) throw new Error("Assignment ID not configured.");
+          return CURRENT_ASSIGNMENT_ID_BLOG;
         }
-        // Fallback if shared helper is unavailable in this context.
-        if (FRONTMATTER_ASSIGNMENT_ID_BLOG) return FRONTMATTER_ASSIGNMENT_ID_BLOG;
-        throw new Error("Assignment ID not configured.");
+
+        // Always resolve against the backend so uploads/submissions target the real
+        // assignment ID, not only a static frontmatter one. DOMContentLoaded already
+        // kicks this off once; a submit attempt that races ahead of that (or a legacy
+        // page with no listener yet attached) starts it here instead of failing.
+        if (!ASSIGNMENT_RESOLVE_PROMISE_BLOG) {
+          ASSIGNMENT_RESOLVE_PROMISE_BLOG = autoCreateAssignmentIfNeededBlog();
+        }
+        await ASSIGNMENT_RESOLVE_PROMISE_BLOG;
+
+        if (!CURRENT_ASSIGNMENT_ID_BLOG) {
+          throw new Error('Could not resolve backend assignment ID. Please log in and refresh.');
+        }
+        return CURRENT_ASSIGNMENT_ID_BLOG;
       }
 
       function currentAssignmentNameBlog() {
