@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """
-Sync pages marked `assignment: true` in their frontmatter to Spring assignments.
-
+Core Goals:
+  1. Sync pages marked `assignment: true` in their frontmatter to Spring assignments.
+  2. Handle bad frontmatter gracefully by issuing warnings and applying default values. It never stops the run.
+  
+Usage:
     python3 scripts/sync_assignments.py                          # dry run: review only
     PAGES_BOT_PASSWORD=... python3 scripts/sync_assignments.py   # production
+    python3 scripts/sync_assignments_test.py                     # run the test suite for sync_assignments.py
 
 Reading order of this file:
   1. Assignment         one page's assignment data, cleaned and ready to send
@@ -12,8 +16,43 @@ Reading order of this file:
   4. main()             ties them together
   5. Supporting pieces  reporting, reading frontmatter, Jekyll URL rules
 
-Bad frontmatter never stops the run; it becomes a warning and a default value.
+The data, as it moves through the three systems:
+
+  page frontmatter                 Assignment (one per page)
+  ----------------                 -------------------------
+  ---                              Assignment(
+  assignment: true                     path=Path("_projects/.../inputs.md"),
+  title: SASS Inputs        ==>        content_url="sass/inputs",     # Jekyll page.url
+  permalink: /sass/inputs              name="SASS Inputs",
+  assignment_submission_type: code     description="",                # default
+  assignment_creator_uids:             points=1.0,                    # default
+    - psai-github                      due_date=None,                 # default
+  ---                                  submission_type="code",
+                                       creator_uids=("psai-github",),
+                                       course_codes=None,             # not declared
+                                   )
+
+  AssignmentCatalog._by_url        one Assignment per URL; a notebook and its converted
+  -------------------------        post share a URL and are merged into one entry
+  {
+      "sass/inputs":      Assignment(...),
+      "sass/typography":  Assignment(...),
+      ...
+  }
+
+  SpringClient.upsert(assignment)  sends Assignment.to_payload() as a form POST to
+  -------------------------------  /api/assignments/auto-create; Spring matches on contentUrl
+  {
+      "name": "SASS Inputs",
+      "contentUrl": "sass/inputs",
+      "description": "",
+      "points": 1.0,
+      "assignmentType": "code",
+      "creatorUids": ["psai-github"],
+      "courseCodes": [],                # empty: not sent, Spring keeps its stored courses
+  }
 """
+
 import argparse
 import json
 import math
@@ -37,7 +76,6 @@ DEFAULT_SUBMISSION_TYPE = None
 DEFAULT_CREATOR_UIDS = ("toby",)  # system test user; trailing comma keeps it a tuple
 DEFAULT_COURSE_CODES = ()
 
-
 # ================================================================ 1. Assignment
 
 class SkipAssignment(Exception):
@@ -46,6 +84,7 @@ class SkipAssignment(Exception):
 
 @dataclass(frozen=True)
 class Assignment:
+    """Represents an assignment extracted from a page's frontmatter."""
     path: Path
     content_url: str
     name: str
@@ -178,8 +217,8 @@ class AssignmentCatalog:
 
     def __init__(self, report: "SyncReport"):
         self.report = report
-        self._by_url = {}
-        self._conflicted = set()
+        self._by_url = {}  # Maps content URLs to Assignment objects
+        self._conflicted = set()  # Set of content URLs that have conflicts and should be ignored
 
     def scan(self, root: Path) -> "AssignmentCatalog":
         for path in find_pages(root):
