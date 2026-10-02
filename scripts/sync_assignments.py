@@ -3,6 +3,8 @@
 Core Goals:
   1. Sync pages marked `assignment: true` in their frontmatter to Spring assignments.
   2. Handle bad frontmatter gracefully by issuing warnings and applying default values. It never stops the run.
+  3. A problem with one page (bad data, or Spring rejecting or crashing on it) never fails the job.
+     Only a failed login, where nothing can be synced, exits non-zero.
   
 Usage:
     python3 scripts/sync_assignments.py                          # dry run: review only
@@ -350,8 +352,14 @@ def main(argv=None):
         client = SpringClient(args.base_url, args.requests_per_minute)
         try:
             client.login(args.uid, args.password)
-        except (RuntimeError, requests.RequestException) as error:
-            report.error(str(error))
+        except RuntimeError as error:
+            report.fatal(
+                f"Login to {args.base_url} as '{args.uid}' failed. Check the account and password "
+                f"(PAGES_BOT_UID / PAGES_BOT_PASSWORD secrets). Details: {error}"
+            )
+            return report.exit_code
+        except requests.RequestException as error:
+            report.fatal(f"Could not reach {args.base_url} to log in; is Spring up? Details: {error}")
             return report.exit_code
         print(f"Authenticated as {args.uid}; writing to {args.base_url}")
 
@@ -362,7 +370,7 @@ def main(argv=None):
         try:
             response = client.upsert(assignment)
         except requests.RequestException as error:
-            report.error(f"Could not reach Spring for '{assignment.content_url}': {error}")
+            report.fail(f"Could not reach Spring for '{assignment.content_url}': {error}", assignment.path)
             continue
         print(f"  {response.status_code} {response.text[:200]}")
         if response.ok:
@@ -370,7 +378,10 @@ def main(argv=None):
         elif SpringClient.is_page_rejection(response.status_code):
             report.skip(f"Spring rejected '{assignment.content_url}': {response.text[:200]}", assignment.path)
         else:
-            report.error(f"Spring failed on '{assignment.content_url}': {response.status_code} {response.text[:200]}")
+            report.fail(
+                f"Spring failed on '{assignment.content_url}': {response.status_code} {response.text[:200]}",
+                assignment.path,
+            )
 
     print(report.summary(len(catalog)))
     return report.exit_code
@@ -378,7 +389,7 @@ def main(argv=None):
 
 # ================================================================ 5. Supporting pieces
 
-# ---- reporting: warnings are bad page data (job passes), errors are outages (job fails)
+# ---- reporting: page problems are annotated but never fail the job; only a failed login does
 
 def warn(message, path=None):
     location = f" file={path}" if path else ""
@@ -388,23 +399,29 @@ def warn(message, path=None):
 class SyncReport:
     def __init__(self):
         self.sent = 0
-        self.skipped = 0
-        self.errors = []
+        self.skipped = 0  # bad page data: frontmatter or a Spring 4xx
+        self.failed = 0  # Spring crashed or was unreachable for one page
+        self.fatal_error = None  # nothing could be synced, e.g. login failed
 
     def skip(self, message, path=None):
         self.skipped += 1
         warn(f"Skipped: {message}", path)
 
-    def error(self, message):
-        self.errors.append(message)
+    def fail(self, message, path=None):
+        self.failed += 1
+        location = f" file={path}" if path else ""
+        print(f"::error{location}::{message}", file=sys.stderr)
+
+    def fatal(self, message):
+        self.fatal_error = message
         print(f"::error::{message}", file=sys.stderr)
 
     def summary(self, total):
-        return f"Done: {total} assignments, {self.sent} sent, {self.skipped} skipped, {len(self.errors)} errors."
+        return f"Done: {total} assignments, {self.sent} sent, {self.skipped} skipped, {self.failed} failed."
 
     @property
     def exit_code(self):
-        return 2 if self.errors else 0
+        return 2 if self.fatal_error else 0
 
 
 # ---- reading pages
