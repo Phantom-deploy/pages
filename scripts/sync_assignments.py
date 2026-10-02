@@ -9,7 +9,7 @@ Core Goals:
 Usage:
     python3 scripts/sync_assignments.py                          # dry run: review only
     PAGES_BOT_PASSWORD=... python3 scripts/sync_assignments.py   # production
-    python3 scripts/sync_assignments_test.py                     # run the test suite for sync_assignments.py
+    python scripts/sync_assignments_test.py                     # run the test suite for sync_assignments.py
     python scripts/sync_assignments.py 2>&1 | grep WARNING       # run and filter only warnings
 
 Reading order of this file:
