@@ -2,11 +2,16 @@
 """
 Sync pages marked `assignment: true` in their frontmatter to Spring assignments.
 
-    python3 scripts/sync_assignments.py                  # dry run: review only
+    python3 scripts/sync_assignments.py                          # dry run: review only
     PAGES_BOT_PASSWORD=... python3 scripts/sync_assignments.py   # production
 
-Flow: find pages -> build an Assignment per page -> merge copies of the same page
--> send each to Spring, which creates or updates by contentUrl (no duplicate rows).
+Reading order of this file:
+  1. Assignment         one page's assignment data, cleaned and ready to send
+  2. AssignmentCatalog  every assignment in the repo, one per page URL
+  3. SpringClient       sends assignments to Spring
+  4. main()             ties them together
+  5. Supporting pieces  reporting, reading frontmatter, Jekyll URL rules
+
 Bad frontmatter never stops the run; it becomes a warning and a default value.
 """
 import argparse
@@ -32,139 +37,12 @@ DEFAULT_SUBMISSION_TYPE = None
 DEFAULT_CREATOR_UIDS = ("toby",)  # system test user; trailing comma keeps it a tuple
 DEFAULT_COURSE_CODES = ()
 
-PAGE_EXTENSIONS = {".md", ".markdown", ".html", ".htm", ".ipynb"}
-# Registered-project build outputs; their sources under _projects are scanned instead.
-GENERATED_ROOTS = {("_notebooks", "projects"), ("_posts", "projects"), ("_sass", "projects")}
-FRONTMATTER_RE = re.compile(r"^\ufeff?\s*---\s*\n(.*?)\n---\s*(?:\n|$)", re.S)
-PAGE_SUFFIX_RE = re.compile(r"\.(md|markdown|html|htm|ipynb)$", re.I)
 
+# ================================================================ 1. Assignment
 
-class AssignmentDataError(ValueError):
-    """Frontmatter that cannot become an assignment."""
+class SkipAssignment(Exception):
+    """Raised when a page cannot become an assignment; the catalog skips it and moves on."""
 
-
-# ---------------------------------------------------------------- reporting
-
-class SyncReport:
-    """Counts outcomes; warnings are bad page data, errors are infrastructure failures."""
-
-    def __init__(self):
-        self.sent = 0
-        self.skipped = 0
-        self.errors = []
-
-    def warn(self, message, path=None):
-        location = f" file={path}" if path else ""
-        print(f"::warning{location}::{message}", file=sys.stderr)
-
-    def skip(self, message, path=None):
-        self.skipped += 1
-        self.warn(f"Skipped: {message}", path)
-
-    def error(self, message):
-        self.errors.append(message)
-        print(f"::error::{message}", file=sys.stderr)
-
-    def summary(self, total):
-        return f"Done: {total} assignments, {self.sent} sent, {self.skipped} skipped, {len(self.errors)} errors."
-
-    @property
-    def exit_code(self):
-        return 2 if self.errors else 0
-
-
-# ---------------------------------------------------------------- reading pages
-
-def find_pages(root: Path):
-    for path in root.rglob("*"):
-        if not path.is_file() or path.suffix.lower() not in PAGE_EXTENSIONS:
-            continue
-        if path.relative_to(root).parts[:2] in GENERATED_ROOTS:
-            continue
-        yield path
-
-
-def parse_frontmatter(text: str):
-    text = text.replace("\r\n", "\n").replace("\r", "\n")
-    match = FRONTMATTER_RE.match(text)
-    if not match:
-        return None
-    try:
-        return yaml.safe_load(match.group(1)) or {}
-    except yaml.YAMLError:
-        return None
-
-
-def read_frontmatter(path: Path):
-    """Return the page's frontmatter dict, or None if it has none or can't be read."""
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return None
-
-    if path.suffix.lower() != ".ipynb":
-        data = parse_frontmatter(text)
-        return data if isinstance(data, dict) else None
-
-    try:
-        cells = json.loads(text).get("cells", [])
-    except (ValueError, AttributeError):
-        return None
-    for cell in cells:
-        source = cell.get("source")
-        if isinstance(source, list):
-            # Notebook lines may lack trailing newlines; rejoin so YAML stays parseable.
-            source = "\n".join(str(line).rstrip("\n") for line in source)
-        if isinstance(source, str):
-            data = parse_frontmatter(source)
-            if data is not None:
-                return data if isinstance(data, dict) else None
-    return None
-
-
-# ---------------------------------------------------------------- Jekyll URL rules
-# contentUrl must equal Jekyll's `page.url` byte for byte: Spring dedups on it, and
-# the browser posts `page.url` from _layouts/post.html.
-
-def canonicalize_content_url(url):
-    """Mirrors AssignmentContentUrls.canonicalize in Spring; keep the two in step."""
-    if not isinstance(url, str):
-        return None
-    return re.sub(r"/{2,}", "/", url.strip()).strip("/") or None
-
-
-def jekyll_categories(relative_path: str, fm: dict):
-    """Only directories above `_posts` are categories; frontmatter overrides them."""
-    declared = fm.get("categories")
-    if declared is None:
-        declared = fm.get("category")
-    if isinstance(declared, str):
-        categories = declared.replace(",", " ").split()
-    elif isinstance(declared, list):
-        categories = [str(c).strip() for c in declared if str(c).strip()]
-    else:
-        categories = [part for part in relative_path.partition("_posts/")[0].split("/") if part]
-    return [quote(c.lower(), safe="") for c in categories]
-
-
-def content_url_for(root: Path, path: Path, fm: dict):
-    permalink = fm.get("permalink")
-    if isinstance(permalink, str) and permalink.strip():
-        return canonicalize_content_url(permalink)
-
-    relative = path.relative_to(root).as_posix()
-    if "_posts/" in relative:
-        dated = re.match(r"^(\d{4})-(\d{2})-(\d{2})-(.+)$", PAGE_SUFFIX_RE.sub("", path.name))
-        if dated:
-            year, month, day, slug = dated.groups()
-            parts = jekyll_categories(relative, fm) + [year, month, day, slug]
-            return canonicalize_content_url("/".join(parts) + ".html")
-
-    relative = re.sub(r"(^|/)index\.(md|markdown|html|htm)$", r"\1", relative, flags=re.I)
-    return canonicalize_content_url(PAGE_SUFFIX_RE.sub(".html", relative))
-
-
-# ---------------------------------------------------------------- the assignment
 
 @dataclass(frozen=True)
 class Assignment:
@@ -179,39 +57,37 @@ class Assignment:
     creator_uids: tuple | None = None
     course_codes: tuple | None = None
 
+    # Fields that must agree when the same page appears twice (notebook + converted post).
+    SYNC_FIELDS = ("submission_type", "creator_uids", "course_codes")
+
     @classmethod
-    def from_frontmatter(cls, root: Path, path: Path, fm: dict, report: SyncReport):
+    def from_frontmatter(cls, root: Path, path: Path, fm: dict):
         content_url = content_url_for(root, path, fm)
         if not content_url:
-            raise AssignmentDataError("could not determine contentUrl")
+            raise SkipAssignment("could not determine contentUrl")
         return cls(
             path=path,
             content_url=content_url,
-            name=_text(fm.get("title") or fm.get("name"), "title", path, report) or path.stem,
-            description=_text(fm.get("description"), "description", path, report) or DEFAULT_DESCRIPTION,
-            points=_points(fm.get("points"), path, report),
-            due_date=_text(fm.get("dueDate") or fm.get("due_date") or fm.get("due"), "dueDate", path, report)
+            name=cls._clean_text(fm.get("title") or fm.get("name"), "title", path) or path.stem,
+            description=cls._clean_text(fm.get("description"), "description", path) or DEFAULT_DESCRIPTION,
+            points=cls._clean_points(fm.get("points"), path),
+            due_date=cls._clean_text(fm.get("dueDate") or fm.get("due_date") or fm.get("due"), "dueDate", path)
             or DEFAULT_DUE_DATE,
-            submission_type=_text(fm.get("assignment_submission_type"), "assignment_submission_type", path, report)
+            submission_type=cls._clean_text(fm.get("assignment_submission_type"), "assignment_submission_type", path)
             or DEFAULT_SUBMISSION_TYPE,
-            creator_uids=_creator_uids(fm, path, report),
-            course_codes=_course_codes(fm, path, report),
+            creator_uids=cls._clean_creator_uids(fm.get("assignment_creator_uids"), path),
+            course_codes=cls._clean_course_codes(fm.get("courses"), path),
         )
 
-    SYNC_FIELDS = ("submission_type", "creator_uids", "course_codes")
-
     def merge(self, other: "Assignment") -> "Assignment":
-        """Combine two copies of one page (e.g. a notebook and its converted post).
-
-        Declared sync fields must agree; one copy may fill in what the other omits.
-        The notebook is the editable source, so its display text wins.
-        """
+        """Combine two copies of one page. One copy may fill in what the other omits,
+        but declared values must agree. The notebook is the editable source, so its text wins."""
         preferred = other if other.path.suffix.lower() == ".ipynb" else self
         merged = {}
         for field in self.SYNC_FIELDS:
             mine, theirs = getattr(self, field), getattr(other, field)
             if mine is not None and theirs is not None and mine != theirs:
-                raise AssignmentDataError(
+                raise SkipAssignment(
                     f"conflicting {field} for '{self.content_url}' in {self.path} and {other.path}"
                 )
             merged[field] = mine if mine is not None else theirs
@@ -249,59 +125,58 @@ class Assignment:
             f"courseCodes={','.join(self.course_codes or ()) or 'none'}"
         )
 
+    # ---- cleaning raw frontmatter values; bad input warns and returns a fallback
 
-def _text(value, field, path, report):
-    """Scalar YAML values as stripped text; anything else is warned about and dropped."""
-    if value is None or isinstance(value, bool):
+    @staticmethod
+    def _clean_text(value, field, path):
+        if value is None or isinstance(value, bool):
+            return None
+        if isinstance(value, (str, int, float, date)):
+            return str(value).strip() or None
+        warn(f"Ignoring non-text {field} {value!r}", path)
         return None
-    if isinstance(value, (str, int, float, date)):
-        return str(value).strip() or None
-    report.warn(f"Ignoring non-text {field} {value!r}", path)
-    return None
 
-
-def _points(value, path, report):
-    if value is None:
+    @staticmethod
+    def _clean_points(value, path):
+        if value is None:
+            return DEFAULT_POINTS
+        try:
+            if isinstance(value, bool):
+                raise ValueError
+            points = float(value)
+            if math.isfinite(points) and points >= 0:
+                return points
+        except (TypeError, ValueError):
+            pass
+        warn(f"Invalid points {value!r}; using {DEFAULT_POINTS}", path)
         return DEFAULT_POINTS
-    try:
-        if isinstance(value, bool):
-            raise ValueError
-        points = float(value)
-        if math.isfinite(points) and points >= 0:
-            return points
-    except (TypeError, ValueError):
-        pass
-    report.warn(f"Invalid points {value!r}; using {DEFAULT_POINTS}", path)
-    return DEFAULT_POINTS
+
+    @staticmethod
+    def _clean_creator_uids(value, path):
+        if value is None:
+            return None
+        if not value or not isinstance(value, list) or not all(isinstance(uid, str) and uid.strip() for uid in value):
+            warn(f"assignment_creator_uids must be a list of user ids, got {value!r}; using defaults", path)
+            return None
+        return tuple(dict.fromkeys(uid.strip() for uid in value))
+
+    @staticmethod
+    def _clean_course_codes(value, path):
+        # `courses` maps course names to routing data (e.g. week); only the names matter here.
+        if value is None:
+            return None
+        if not value or not isinstance(value, dict) or not all(isinstance(c, str) and c.strip() for c in value):
+            warn(f"courses must be a mapping of course names, got {value!r}; using defaults", path)
+            return None
+        return tuple(dict.fromkeys(course.strip().upper() for course in value))
 
 
-def _creator_uids(fm, path, report):
-    raw = fm.get("assignment_creator_uids")
-    if raw is None:
-        return None
-    if not isinstance(raw, list) or not all(isinstance(uid, str) and uid.strip() for uid in raw) or not raw:
-        report.warn(f"assignment_creator_uids must be a list of user ids, got {raw!r}; using defaults", path)
-        return None
-    return tuple(dict.fromkeys(uid.strip() for uid in raw))
-
-
-def _course_codes(fm, path, report):
-    # `courses` is a mapping whose values hold routing data (e.g. week); only keys matter here.
-    raw = fm.get("courses")
-    if raw is None:
-        return None
-    if not isinstance(raw, dict) or not all(isinstance(c, str) and c.strip() for c in raw) or not raw:
-        report.warn(f"courses must be a mapping of course names, got {raw!r}; using defaults", path)
-        return None
-    return tuple(dict.fromkeys(course.strip().upper() for course in raw))
-
-
-# ---------------------------------------------------------------- the catalog
+# ================================================================ 2. AssignmentCatalog
 
 class AssignmentCatalog:
     """All assignments in the repo, one per contentUrl."""
 
-    def __init__(self, report: SyncReport):
+    def __init__(self, report: "SyncReport"):
         self.report = report
         self._by_url = {}
         self._conflicted = set()
@@ -312,9 +187,9 @@ class AssignmentCatalog:
             if not fm or fm.get("assignment") is not True:
                 continue
             try:
-                self.add(Assignment.from_frontmatter(root, path, fm, self.report))
-            except AssignmentDataError as error:
-                self.report.skip(str(error), path)
+                self.add(Assignment.from_frontmatter(root, path, fm))
+            except SkipAssignment as reason:
+                self.report.skip(str(reason), path)
         return self
 
     def add(self, assignment: Assignment):
@@ -327,11 +202,11 @@ class AssignmentCatalog:
             return
         try:
             self._by_url[url] = existing.merge(assignment)
-        except AssignmentDataError as error:
+        except SkipAssignment as reason:
             # Neither copy is trustworthy; skip the URL without blocking the others.
             del self._by_url[url]
             self._conflicted.add(url)
-            self.report.skip(str(error))
+            self.report.skip(str(reason))
 
     def __iter__(self):
         return (assignment.with_defaults() for assignment in self._by_url.values())
@@ -340,7 +215,7 @@ class AssignmentCatalog:
         return len(self._by_url)
 
 
-# ---------------------------------------------------------------- Spring
+# ================================================================ 3. SpringClient
 
 class SpringClient:
     """Authenticated, rate-limited access to Spring's assignment API."""
@@ -371,6 +246,11 @@ class SpringClient:
         """Spring creates the assignment, or updates the one with the same contentUrl."""
         return self._post("/api/assignments/auto-create", data=assignment.to_payload(), timeout=30)
 
+    @staticmethod
+    def is_page_rejection(status_code):
+        """A 4xx about this page's data, as opposed to auth or rate-limit trouble."""
+        return 400 <= status_code < 500 and status_code not in (401, 403, 429)
+
     def _post(self, route, **kwargs):
         response = None
         for attempt in range(self.RETRY_ATTEMPTS):
@@ -378,7 +258,7 @@ class SpringClient:
             response = self.session.post(f"{self.base_url}{route}", **kwargs)
             if response.status_code != 429 or attempt == self.RETRY_ATTEMPTS - 1:
                 return response
-            delay = _retry_after_seconds(response)
+            delay = self._retry_after_seconds(response)
             print(f"Rate limited by Spring; retrying in {delay} seconds", file=sys.stderr)
             self.sleeper(delay)
         return response
@@ -391,20 +271,15 @@ class SpringClient:
             now = self._next_request_at
         self._next_request_at = now + self.interval
 
-
-def _retry_after_seconds(response):
-    try:
-        return max(1, int(response.headers.get("Retry-After", "")))
-    except ValueError:
-        return 60
-
-
-def is_page_rejection(status_code):
-    """A 4xx about this page's data, as opposed to auth or rate-limit trouble."""
-    return 400 <= status_code < 500 and status_code not in (401, 403, 429)
+    @staticmethod
+    def _retry_after_seconds(response):
+        try:
+            return max(1, int(response.headers.get("Retry-After", "")))
+        except ValueError:
+            return 60
 
 
-# ---------------------------------------------------------------- main
+# ================================================================ 4. main
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -429,9 +304,8 @@ def main(argv=None):
     catalog = AssignmentCatalog(report).scan(root)
     print(f"Found {len(catalog)} assignments")
 
-    dry_run = args.dry_run or not args.password
     client = None
-    if dry_run:
+    if args.dry_run or not args.password:
         print("DRY RUN: no password provided or --dry-run set; Spring will not be contacted.")
     else:
         client = SpringClient(args.base_url, args.requests_per_minute)
@@ -454,13 +328,144 @@ def main(argv=None):
         print(f"  {response.status_code} {response.text[:200]}")
         if response.ok:
             report.sent += 1
-        elif is_page_rejection(response.status_code):
+        elif SpringClient.is_page_rejection(response.status_code):
             report.skip(f"Spring rejected '{assignment.content_url}': {response.text[:200]}", assignment.path)
         else:
             report.error(f"Spring failed on '{assignment.content_url}': {response.status_code} {response.text[:200]}")
 
     print(report.summary(len(catalog)))
     return report.exit_code
+
+
+# ================================================================ 5. Supporting pieces
+
+# ---- reporting: warnings are bad page data (job passes), errors are outages (job fails)
+
+def warn(message, path=None):
+    location = f" file={path}" if path else ""
+    print(f"::warning{location}::{message}", file=sys.stderr)
+
+
+class SyncReport:
+    def __init__(self):
+        self.sent = 0
+        self.skipped = 0
+        self.errors = []
+
+    def skip(self, message, path=None):
+        self.skipped += 1
+        warn(f"Skipped: {message}", path)
+
+    def error(self, message):
+        self.errors.append(message)
+        print(f"::error::{message}", file=sys.stderr)
+
+    def summary(self, total):
+        return f"Done: {total} assignments, {self.sent} sent, {self.skipped} skipped, {len(self.errors)} errors."
+
+    @property
+    def exit_code(self):
+        return 2 if self.errors else 0
+
+
+# ---- reading pages
+
+PAGE_EXTENSIONS = {".md", ".markdown", ".html", ".htm", ".ipynb"}
+# Registered-project build outputs; their sources under _projects are scanned instead.
+GENERATED_ROOTS = {("_notebooks", "projects"), ("_posts", "projects"), ("_sass", "projects")}
+FRONTMATTER_RE = re.compile(r"^\ufeff?\s*---\s*\n(.*?)\n---\s*(?:\n|$)", re.S)
+
+
+def find_pages(root: Path):
+    for path in root.rglob("*"):
+        if not path.is_file() or path.suffix.lower() not in PAGE_EXTENSIONS:
+            continue
+        if path.relative_to(root).parts[:2] in GENERATED_ROOTS:
+            continue
+        yield path
+
+
+def read_frontmatter(path: Path):
+    """Return the page's frontmatter dict, or None if it has none or can't be read."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    if path.suffix.lower() != ".ipynb":
+        data = parse_frontmatter(text)
+        return data if isinstance(data, dict) else None
+
+    try:
+        cells = json.loads(text).get("cells", [])
+    except (ValueError, AttributeError):
+        return None
+    for cell in cells:
+        source = cell.get("source")
+        if isinstance(source, list):
+            # Notebook lines may lack trailing newlines; rejoin so YAML stays parseable.
+            source = "\n".join(str(line).rstrip("\n") for line in source)
+        if isinstance(source, str):
+            data = parse_frontmatter(source)
+            if data is not None:
+                return data if isinstance(data, dict) else None
+    return None
+
+
+def parse_frontmatter(text: str):
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    match = FRONTMATTER_RE.match(text)
+    if not match:
+        return None
+    try:
+        return yaml.safe_load(match.group(1)) or {}
+    except yaml.YAMLError:
+        return None
+
+
+# ---- Jekyll URL rules
+# contentUrl must equal Jekyll's `page.url` byte for byte: Spring dedups on it, and
+# the browser posts `page.url` from _layouts/post.html.
+
+PAGE_SUFFIX_RE = re.compile(r"\.(md|markdown|html|htm|ipynb)$", re.I)
+
+
+def content_url_for(root: Path, path: Path, fm: dict):
+    permalink = fm.get("permalink")
+    if isinstance(permalink, str) and permalink.strip():
+        return canonicalize_content_url(permalink)
+
+    relative = path.relative_to(root).as_posix()
+    if "_posts/" in relative:
+        dated = re.match(r"^(\d{4})-(\d{2})-(\d{2})-(.+)$", PAGE_SUFFIX_RE.sub("", path.name))
+        if dated:
+            year, month, day, slug = dated.groups()
+            parts = jekyll_categories(relative, fm) + [year, month, day, slug]
+            return canonicalize_content_url("/".join(parts) + ".html")
+
+    relative = re.sub(r"(^|/)index\.(md|markdown|html|htm)$", r"\1", relative, flags=re.I)
+    return canonicalize_content_url(PAGE_SUFFIX_RE.sub(".html", relative))
+
+
+def jekyll_categories(relative_path: str, fm: dict):
+    """Only directories above `_posts` are categories; frontmatter overrides them."""
+    declared = fm.get("categories")
+    if declared is None:
+        declared = fm.get("category")
+    if isinstance(declared, str):
+        categories = declared.replace(",", " ").split()
+    elif isinstance(declared, list):
+        categories = [str(c).strip() for c in declared if str(c).strip()]
+    else:
+        categories = [part for part in relative_path.partition("_posts/")[0].split("/") if part]
+    return [quote(c.lower(), safe="") for c in categories]
+
+
+def canonicalize_content_url(url):
+    """Mirrors AssignmentContentUrls.canonicalize in Spring; keep the two in step."""
+    if not isinstance(url, str):
+        return None
+    return re.sub(r"/{2,}", "/", url.strip()).strip("/") or None
 
 
 if __name__ == "__main__":
