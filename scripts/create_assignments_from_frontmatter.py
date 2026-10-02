@@ -3,11 +3,14 @@
 Scan the repo for Markdown/HTML/notebook pages with YAML frontmatter containing
 assignment: true and POST to the Spring `auto-create` API for each page.
 
-Usage (CI / local):
-  export BASE_URL=https://spring.opencodingsociety.com
-  export PAGES_BOT_UID=pages-bot
-  export PAGES_BOT_PASSWORD=...
-  python3 scripts/create_assignments_from_frontmatter.py --root .
+Usage:
+  Local review (default; nothing is sent to Spring):
+    python3 scripts/create_assignments_from_frontmatter.py
+
+  Production (CI) - supplying a password enables the live run:
+    export PAGES_BOT_UID=pages-bot
+    export PAGES_BOT_PASSWORD=...
+    python3 scripts/create_assignments_from_frontmatter.py
 
 The script is idempotent: the server will return 200 for existing contentUrl.
 """
@@ -469,7 +472,7 @@ def main():
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
     parser.add_argument("--uid", default=DEFAULT_UID)
     parser.add_argument("--password", default=DEFAULT_PASSWORD)
-    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--dry-run", action="store_true", help="Force a dry run even when a password is set")
     parser.add_argument(
         "--requests-per-minute",
         type=int,
@@ -488,12 +491,13 @@ def main():
         return 2
 
     session = requests.Session()
-    if not args.dry_run:
-        if not args.password:
-            print("PAGES_BOT_PASSWORD is required (pass --password or set env PAGES_BOT_PASSWORD)", file=sys.stderr)
-            return 2
+    # Credentials opt in to a production run; without them nothing is sent to Spring.
+    dry_run = args.dry_run or not args.password
+    if dry_run:
+        print("DRY RUN: no password provided or --dry-run set; Spring will not be contacted.")
+    else:
         authenticate(session, args.base_url, args.uid, args.password)
-        print("Authenticated OK")
+        print(f"Authenticated OK as {args.uid}; changes will be written to {args.base_url}")
 
     pacer = RequestPacer(args.requests_per_minute)
     candidates = []
@@ -553,7 +557,7 @@ def main():
             f"assignmentType={assignment_submission_type or 'unchanged/default file'} "
             f"creatorUids={creator_summary} courseCodes={course_summary}"
         )
-        if args.dry_run and not args.create:
+        if dry_run:
             continue
 
         if args.create:
@@ -596,8 +600,6 @@ def main():
                 print(f"  ERROR: {e}")
                 errors.append(f"Could not synchronize '{content_url}': {e}")
         else:
-            if args.dry_run:
-                continue
             try:
                 pacer.wait()
                 resp = create_assignment(

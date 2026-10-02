@@ -39,6 +39,11 @@ jobs:
           PAGES_BOT_UID: ${{ secrets.PAGES_BOT_UID }}
           PAGES_BOT_PASSWORD: ${{ secrets.PAGES_BOT_PASSWORD }}
         run: |
+          # The script dry-runs when no password is given; in CI that would hide a missing secret.
+          if [ -z "$PAGES_BOT_PASSWORD" ]; then
+            echo "::error::PAGES_BOT_PASSWORD secret is not set; refusing to dry-run in production."
+            exit 1
+          fi
           python3 scripts/create_assignments_from_frontmatter.py \
             --root . \
             --base-url "$BASE_URL" \
