@@ -77,7 +77,7 @@ export function createCreatorDashboard(options) {
     const name = text(assignment?.name, "Untitled assignment");
     const url = assignmentUrl(assignment?.contentUrl);
     return url
-      ? `<a class="creator-assignment-link" href="${text(url)}">${name}</a>`
+      ? `<a class="creator-assignment-link" href="${text(url)}" target="_blank" rel="noopener">${name}</a>`
       : `<strong>${name}</strong>`;
   }
 
