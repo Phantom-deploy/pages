@@ -540,6 +540,11 @@ class GameControl {
             currentLevelIndex: this.currentLevelIndex,
             canvasCount: document.querySelectorAll('canvas').length
         });
+        for (const gameObject of this.currentLevel?.gameEnv?.gameObjects || []) {
+            if (typeof gameObject.resetAnimationClock === 'function') {
+                gameObject.resetAnimationClock();
+            }
+        }
         this.isPaused = false;
         this.addExitKeyListener();
         // Do not restore saved canvas image data here. Resuming should
