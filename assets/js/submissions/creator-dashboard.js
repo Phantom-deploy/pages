@@ -4,8 +4,10 @@ const UNASSIGNED_COURSE = "__unassigned__";
 export function assignmentPageUrl(baseUrl, contentUrl) {
   if (!contentUrl) return "";
   const normalizedBase = String(baseUrl || "").replace(/\/$/, "");
-  const normalizedPath = String(contentUrl).replace(/^\/+|\/+$/g, "");
-  return `${normalizedBase}/${normalizedPath}${normalizedPath.endsWith(".html") ? "" : "/"}`;
+  const contentPath = String(contentUrl);
+  const normalizedPath = contentPath.replace(/^\/+|\/+$/g, "");
+  const hasTrailingSlash = contentPath.endsWith("/");
+  return `${normalizedBase}/${normalizedPath}${normalizedPath.endsWith(".html") || !hasTrailingSlash ? "" : "/"}`;
 }
 
 export function withFrontmatterCourses(assignments, manifest) {
