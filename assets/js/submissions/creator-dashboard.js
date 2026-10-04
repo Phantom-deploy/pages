@@ -95,7 +95,7 @@ export function createCreatorDashboard(options) {
     }
 
     container.innerHTML = `
-      <table class="submissions-table">
+      <table class="submissions-table ocs__table">
         <thead><tr>
           <th>Assignment</th><th>Courses</th><th>Due date</th><th>Points</th><th>Submissions</th><th>Creators</th>
         </tr></thead>
@@ -159,7 +159,7 @@ export function createCreatorDashboard(options) {
     }
 
     container.innerHTML = `
-      <table class="submissions-table creator-submissions-table">
+      <table class="submissions-table creator-submissions-table ocs__table">
         <thead><tr>
           <th>Student</th><th>Student course</th><th>Assignment</th><th>Submission</th><th>Status</th><th>Grade</th><th>Feedback</th><th>AI summary</th><th>Quality</th>
         </tr></thead>
@@ -192,9 +192,9 @@ export function createCreatorDashboard(options) {
       return;
     }
     pagination.innerHTML = `
-      <button type="button" data-page="previous" ${currentPage === 1 ? "disabled" : ""}>Previous</button>
+      <button type="button" class="ocs__btn medium" data-page="previous" ${currentPage === 1 ? "disabled" : ""}>Previous</button>
       <span>Page ${currentPage} of ${totalPages} · ${totalRows} results</span>
-      <button type="button" data-page="next" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
+      <button type="button" class="ocs__btn medium" data-page="next" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
   }
 
   function renderSubmissions() {
