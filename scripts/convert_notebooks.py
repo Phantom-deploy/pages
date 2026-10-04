@@ -69,7 +69,9 @@ HTML code-runner specific options (%%html cells with a CODE_RUNNER comment):
 - output_height: <css-size> Rendered output height. Default: the UI runner's 400px minimum.
 
 Game-runner specific options:
-- hide_edit, width, height, editor_height
+- hide_edit, width, editor_height
+- height: <css-size>        Game canvas height. Default: 580px.
+- output_height: <css-size> Alias for height. If both are set, height takes precedence.
 
 Notes on CodeFence and MermaidGraph:
 - Plain markdown code fences and Mermaid markdown are not panel-aware by default.
@@ -599,8 +601,9 @@ class GameRunner:
             lines.append('   autostart="true"')
         if self.options.get('width'):
             lines.append(f'   width="{self.options["width"]}"')
-        if self.options.get('height'):
-            lines.append(f'   height="{self.options["height"]}"')
+        canvas_height = self.options.get('height') or self.options.get('output_height')
+        if canvas_height:
+            lines.append(f'   height="{canvas_height}"')
         if self.options.get('editor_height'):
             lines.append(f'   editor_height="{self.options["editor_height"]}"')
 
