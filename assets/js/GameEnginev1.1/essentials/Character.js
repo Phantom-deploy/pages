@@ -3,8 +3,9 @@ import GameObject from './GameObject.js';
 // Define non-mutable constants as defaults
 const SCALE_FACTOR = 25; // 1/nth of the height of the canvas
 const STEP_FACTOR = 100; // 1/nth, or N steps up and across the canvas
-const ANIMATION_RATE = 1; // Legacy divisor of 60 sprite frames per second
-const REFERENCE_FRAME_RATE = 60;
+const DEFAULT_ANIMATION_FPS = 8;
+const LEGACY_ANIMATION_RATE = 1;
+const LEGACY_REFERENCE_FRAME_RATE = 60; // Converts legacy update-count divisors to sprite FPS
 const MAX_ANIMATION_GAP_MS = 250;
 const INIT_POSITION = { x: 0, y: 0 };
 const PIXELS = {height: 16, width: 16};
@@ -49,8 +50,12 @@ class Character extends GameObject {
     constructor(data = null, gameEnv = null) {
         super(gameEnv);
         this.data = data;
-        this.animationRate = data.ANIMATION_RATE || ANIMATION_RATE;
-        this.animationFps = data.ANIMATION_FPS ?? REFERENCE_FRAME_RATE / this.animationRate;
+        this.animationRate = data.ANIMATION_RATE || LEGACY_ANIMATION_RATE;
+        // Explicit FPS wins; only explicitly supplied legacy rates use the 60Hz conversion.
+        this.animationFps = data.ANIMATION_FPS
+            ?? (data.ANIMATION_RATE != null
+                ? LEGACY_REFERENCE_FRAME_RATE / this.animationRate
+                : DEFAULT_ANIMATION_FPS);
         if (!Number.isFinite(this.animationFps) || this.animationFps <= 0) {
             throw new RangeError(`Character ${data.id || "default"}: ANIMATION_FPS must be a positive finite number`);
         }
