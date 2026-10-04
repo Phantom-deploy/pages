@@ -1,12 +1,12 @@
 ---
-layout: opencs 
+layout: opencs
 title: GameBuilder
 description: Helping programmers understand how to create a game
 permalink: /gamebuilder
 ---
 
-<!-- 
-  All GameBuilder styles are now in _sass/open-coding/game-builder.scss
+<!--
+  Legacy GameBuilder styles remain shared in _sass/open-coding/forms/game-builder.scss
   This uses the standardized three-panel layout system with reusable mixins.
   _sass/open-coding/
   ├── game-builder.scss (reusable!)
@@ -47,6 +47,7 @@ permalink: /gamebuilder
 }
 </style>
 
+<main class="ocs__gamebuilder-system">
 <!-- title banner for the GameBuilder page -->
 <div class="gamebuilder-title">
   {{page.title}}
@@ -59,7 +60,7 @@ permalink: /gamebuilder
     (function(){
         try {
             const s = document.createElement('script');
-            s.src = window.location.origin + './templates.js';
+            s.src = "{{ site.baseurl }}/assets/js/projects/gamebuilder/templates.js";
             s.defer = true;
             document.head.appendChild(s);
         } catch (e) { console.warn('Could not load GameTemplatesV1', e); }
@@ -2798,3 +2799,4 @@ document.querySelector('.game-frame')?.addEventListener('click', () => {
     try { canvas?.focus?.(); } catch (_) {}
 });
 </script>
+</main>

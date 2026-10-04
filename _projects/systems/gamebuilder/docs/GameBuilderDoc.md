@@ -1,6 +1,6 @@
 ---
 layout: post
-title: GameBuilder Doc 
+title: GameBuilder Asset and Sprite Reference
 permalink: /gamebuilder/doc
 breadcrumb: true
 ---
