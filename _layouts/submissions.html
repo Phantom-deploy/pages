@@ -52,32 +52,57 @@ active_tab: submissions
             {% include submissions/creator-dashboard.html %}
 
             <!-- All Submissions tab content (Admin only) -->
-            <div id="tab-content-all-submissions" class="tab-content hidden px-6 py-4 text-neutral-200">
-                <div class="mb-6 flex gap-3 flex-wrap">
-                    <input type="text" id="admin-filter-assignment" class="px-4 py-2 rounded-lg border border-neutral-600 bg-neutral-700 text-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Filter by assignment...">
-                    <input type="text" id="admin-filter-student" class="px-4 py-2 rounded-lg border border-neutral-600 bg-neutral-700 text-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Filter by student...">
-                    <select id="admin-filter-status" class="px-4 py-2 rounded-lg border border-neutral-600 bg-neutral-700 text-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="">All Statuses</option>
-                        <option value="pending">Pending Review</option>
-                        <option value="graded">Graded</option>
-                        <option value="late">Late</option>
-                    </select>
-                    <select id="admin-filter-quality" class="px-4 py-2 rounded-lg border border-neutral-600 bg-neutral-700 text-neutral-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="">All Quality Scores</option>
-                        <option value="5">5 - Exemplar</option>
-                        <option value="4">4 - High Quality</option>
-                        <option value="3">3 - Moderate Quality</option>
-                        <option value="2">2 - Basic Quality</option>
-                        <option value="1">1 - Minimal Quality</option>
-                        <option value="none">Not scored yet</option>
-                    </select>
-                    <button
-                        type="button"
-                        id="summarize-batch-btn"
-                        style="padding:8px 16px;border-radius:8px;background:#4f46e5;color:#fff;font-size:0.875rem;border:none;cursor:pointer;"
-                    >Summarize All with AI</button>
-                    <span id="summarize-batch-status" style="align-self:center;font-size:0.8rem;color:#9ca3af;"></span>
+            <section id="tab-content-all-submissions" class="tab-content ocs__admin-submissions hidden">
+                <header class="ocs__admin-submissions-header">
+                    <div>
+                        <p class="ocs__admin-submissions-eyebrow">Administrator workspace</p>
+                        <h2>All Submissions</h2>
+                        <p>Review submissions grouped by assignment. Only assignments with submissions are shown.</p>
+                    </div>
+                    <p id="admin-submissions-summary" class="ocs__admin-submissions-summary" aria-live="polite"></p>
+                </header>
+
+                <div class="ocs__admin-submissions-toolbar">
+                    <div class="ocs__admin-submissions-filters" role="group" aria-label="Filter all submissions">
+                        <label class="ocs__admin-submissions-filter">
+                            <span>Assignment</span>
+                            <select id="admin-filter-assignment">
+                                <option value="">All assignments</option>
+                            </select>
+                        </label>
+                        <label class="ocs__admin-submissions-filter">
+                            <span>Student</span>
+                            <input type="search" id="admin-filter-student" placeholder="Name or UID" autocomplete="off">
+                        </label>
+                        <label class="ocs__admin-submissions-filter">
+                            <span>Status</span>
+                            <select id="admin-filter-status">
+                                <option value="">All statuses</option>
+                                <option value="pending">Pending review</option>
+                                <option value="graded">Graded</option>
+                                <option value="late">Late</option>
+                            </select>
+                        </label>
+                        <label class="ocs__admin-submissions-filter">
+                            <span>Quality</span>
+                            <select id="admin-filter-quality">
+                                <option value="">All quality scores</option>
+                                <option value="5">5 - Exemplar</option>
+                                <option value="4">4 - High quality</option>
+                                <option value="3">3 - Moderate quality</option>
+                                <option value="2">2 - Basic quality</option>
+                                <option value="1">1 - Minimal quality</option>
+                                <option value="none">Not scored yet</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="ocs__admin-submissions-summary-actions">
+                        <button type="button" id="admin-clear-filters" class="ocs__admin-clear-filters">Clear filters</button>
+                        <button type="button" id="summarize-batch-btn" class="ocs__admin-summarize-btn">Summarize all with AI</button>
+                        <span id="summarize-batch-status" role="status"></span>
+                    </div>
                 </div>
+
                 <div id="all-submissions-loading" class="flex items-center justify-center min-h-[400px]">
                     <div class="text-center">
                         <div class="inline-block">
@@ -89,8 +114,8 @@ active_tab: submissions
                         <p class="text-neutral-400 mt-4">Loading submissions...</p>
                     </div>
                 </div>
-                <div id="all-submissions-container"></div>
-            </div>
+                <div id="all-submissions-container" class="ocs__admin-assignment-list"></div>
+            </section>
 
         </div>
     </div>
@@ -1050,93 +1075,42 @@ active_tab: submissions
         }
     }
 
+    function getAdminAssignmentKey(submission) {
+        const id = submission.assignmentId ?? submission.assignment?.id;
+        return id != null
+            ? `id:${id}`
+            : `name:${submission.assignmentName || 'Unknown assignment'}`;
+    }
+
     function displayAllSubmissions() {
-        const container = document.getElementById('all-submissions-container');
+        const assignmentFilter = document.getElementById('admin-filter-assignment');
+        const selectedAssignment = assignmentFilter.value;
+        const assignments = new Map();
 
-        if (!allSubmissions || allSubmissions.length === 0) {
-            container.innerHTML = '<div class="no-submissions">No submissions found.</div>';
-            return;
-        }
+        allSubmissions.forEach(submission => {
+            const key = getAdminAssignmentKey(submission);
+            if (!assignments.has(key)) {
+                assignments.set(key, {
+                    key,
+                    name: submission.assignmentName || 'Unknown assignment',
+                    count: 0
+                });
+            }
+            assignments.get(key).count++;
+        });
 
-        try {
-            const tableHTML = `
-                <table class="submissions-table">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Assignment</th>
-                            <th>Submission</th>
-                            <th>Status</th>
-                            <th>Grade</th>
-                            <th>Feedback</th>
-                            <th>Comment</th>
-                            <th>AI Summary</th>
-                            <th>Quality Score</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${allSubmissions.map((submission, idx) => {
-                            try {
-                                const gradeVal = submission.grade != null ? submission.grade : '';
-                                const assignmentPoints = getAssignmentPoints(submission);
-                                const feedbackVal = submission.feedback != null ? submission.feedback : '';
-                                return `
-                                    <tr id="sub-row-${idx}">
-                                        <td><strong>${escapeHtml(submission.submitterName || 'Unknown')}</strong></td>
-                                        <td>${escapeHtml(submission.assignmentName || 'Unknown')}</td>
-                                        <td>${renderContent(submission.content)}</td>
-                                        <td>${getStatusBadge(submission)}</td>
-                                        <td>
-                                            <div style="display:flex;align-items:center;gap:6px;">
-                                                <input
-                                                    type="number" min="0" ${assignmentPoints != null ? `max="${assignmentPoints}"` : ''} step="0.5"
-                                                    value="${escapeHtml(String(gradeVal))}"
-                                                    id="grade-input-${idx}"
-                                                    style="width:70px;padding:4px 6px;border-radius:4px;border:1px solid #4b5563;background:#1f2937;color:#f9fafb;font-size:0.85rem;"
-                                                    placeholder="${assignmentPoints != null ? `0–${assignmentPoints}` : 'Points'}"
-                                                >
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <textarea
-                                                id="feedback-input-${idx}"
-                                                rows="2"
-                                                style="width:100%;min-width:180px;padding:4px 6px;border-radius:4px;border:1px solid #4b5563;background:#1f2937;color:#f9fafb;font-size:0.85rem;resize:vertical;"
-                                                placeholder="Feedback"
-                                            >${escapeHtml(String(feedbackVal))}</textarea>
-                                        </td>
-                                        <td><div class="cell-clamp"${cellTitle(submission.comment)}>${submission.comment ? escapeHtml(submission.comment) : '<em style="color:#6b7280">No comment</em>'}</div></td>
-                                        <td><div class="cell-clamp"${cellTitle(submission.aiSummary)}>${renderAiSummary(submission)}</div></td>
-                                        <td>${renderQualityScore(submission)}</td>
-                                        <td>
-                                            <div class="submission-actions" style="flex-direction:column;align-items:flex-start;">
-                                                <button
-                                                    onclick="saveGrade(${idx}, ${submission.id})"
-                                                    style="padding:4px 10px;border-radius:4px;background:#2563eb;color:#fff;font-size:0.8rem;border:none;cursor:pointer;"
-                                                >Save Grade</button>
-                                                <button type="button" class="submission-action-btn" onclick="openEditModal(${submission.id})">Edit</button>                                                <button type="button" class="submission-action-btn" style="border-color:rgb(220,38,38);background:rgba(185,28,28,0.18);color:rgb(254,202,202);" onclick="deleteSubmission(${submission.id}, ${idx})">Delete</button>
-                                                <span id="grade-status-${idx}" style="font-size:0.75rem;color:#6b7280;"></span>
-                                                <span id="delete-status-${idx}" style="font-size:0.75rem;color:#6b7280;"></span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                `;
-                            } catch (rowError) {
-                                console.error('Error rendering admin row', idx, ':', rowError);
-                                return `<tr><td colspan="8" style="color: red;">Error rendering submission</td></tr>`;
-                            }
-                        }).join('')}
-                    </tbody>
-                </table>
-            `;
+        assignmentFilter.innerHTML = '<option value="">All assignments</option>'
+            + [...assignments.values()]
+                .sort((left, right) => left.name.localeCompare(right.name))
+                .map(assignment =>
+                    `<option value="${escapeHtml(assignment.key)}">${escapeHtml(assignment.name)} (${assignment.count})</option>`
+                )
+                .join('');
+        assignmentFilter.value = [...assignmentFilter.options].some(option => option.value === selectedAssignment)
+            ? selectedAssignment
+            : '';
 
-            container.innerHTML = tableHTML;
-            console.log('Successfully rendered all submissions table');
-        } catch (error) {
-            console.error('Error rendering all submissions table:', error);
-            container.innerHTML = '<div class="error-message">Error rendering submissions table. Please try again.</div>';
-        }
+        applyFilters();
     }
 
     function setSummarizeStatus(message, type = 'info') {
@@ -1289,10 +1263,7 @@ active_tab: submissions
         let totalSkippedForSize = 0;
 
         const rerender = () => {
-            displayAllSubmissions();
-            const hasActiveFilter = ['admin-filter-assignment', 'admin-filter-student', 'admin-filter-status', 'admin-filter-quality']
-                .some(id => document.getElementById(id) && document.getElementById(id).value);
-            if (hasActiveFilter) applyFilters();
+            applyFilters();
         };
 
         try {
@@ -1501,101 +1472,127 @@ active_tab: submissions
         const filterStudent = document.getElementById('admin-filter-student');
         const filterStatus = document.getElementById('admin-filter-status');
         const filterQuality = document.getElementById('admin-filter-quality');
+        const clearFilters = document.getElementById('admin-clear-filters');
 
         [filterAssignment, filterStudent, filterStatus, filterQuality].forEach(filter => {
             if (filter) {
-                filter.addEventListener('input', applyFilters);
+                filter.addEventListener(filter.tagName === 'SELECT' ? 'change' : 'input', applyFilters);
             }
+        });
+        clearFilters.addEventListener('click', () => {
+            filterAssignment.value = '';
+            filterStudent.value = '';
+            filterStatus.value = '';
+            filterQuality.value = '';
+            applyFilters();
         });
     }
 
     function applyFilters() {
-        const assignmentFilter = (document.getElementById('admin-filter-assignment').value || '').toLowerCase();
+        const assignmentFilter = document.getElementById('admin-filter-assignment').value;
         const studentFilter = (document.getElementById('admin-filter-student').value || '').toLowerCase();
         const statusFilter = document.getElementById('admin-filter-status').value;
         const qualityFilter = document.getElementById('admin-filter-quality').value;
 
-        const filtered = allSubmissions.filter(sub => {
-            const assignmentMatch = (sub.assignmentName || '').toLowerCase().includes(assignmentFilter);
-            const studentMatch = (sub.submitterName || '').toLowerCase().includes(studentFilter);
-            const statusMatch = !statusFilter || getFilterStatus(sub) === statusFilter;
+        const filtered = allSubmissions.filter(submission => {
+            const assignmentKey = getAdminAssignmentKey(submission);
+            const assignmentMatch = !assignmentFilter || assignmentKey === assignmentFilter;
+            const studentText = `${submission.submitterName || ''} ${submission.submitterUid || ''}`.toLowerCase();
+            const studentMatch = studentText.includes(studentFilter);
+            const statusMatch = !statusFilter || getFilterStatus(submission) === statusFilter;
             const qualityMatch = !qualityFilter
-                || (qualityFilter === 'none' ? !sub.qualityScore : sub.qualityScore === Number(qualityFilter));
+                || (qualityFilter === 'none' ? !submission.qualityScore : submission.qualityScore === Number(qualityFilter));
 
             return assignmentMatch && studentMatch && statusMatch && qualityMatch;
         });
 
+        const numberedSubmissions = filtered.map((submission, idx) => ({ submission, idx }));
+        const assignments = new Map();
+        numberedSubmissions.forEach(row => {
+            const key = getAdminAssignmentKey(row.submission);
+            if (!assignments.has(key)) {
+                assignments.set(key, {
+                    key,
+                    name: row.submission.assignmentName || 'Unknown assignment',
+                    rows: []
+                });
+            }
+            assignments.get(key).rows.push(row);
+        });
+
+        const summary = document.getElementById('admin-submissions-summary');
+        summary.textContent = `${assignments.size} assignment${assignments.size === 1 ? '' : 's'} · ${filtered.length} submission${filtered.length === 1 ? '' : 's'}`;
+
         if (filtered.length === 0) {
             document.getElementById('all-submissions-container').innerHTML =
-                '<div class="no-submissions">No submissions match the filters.</div>';
+                '<div class="ocs__admin-submissions-empty">No submissions match these filters.</div>';
             return;
         }
 
-        const tableHTML = `
-            <table class="submissions-table">
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Assignment</th>
-                        <th>Submission</th>
-                        <th>Status</th>
-                        <th>Grade</th>
-                        <th>Feedback</th>
-                        <th>Comment</th>
-                        <th>AI Summary</th>
-                        <th>Quality Score</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${filtered.map((submission, idx) => {
-                        const gradeVal = submission.grade != null ? submission.grade : '';
-                        const assignmentPoints = getAssignmentPoints(submission);
-                        const feedbackVal = submission.feedback != null ? submission.feedback : '';
-                        return `
+        const tableHTML = [...assignments.values()]
+            .sort((left, right) => left.name.localeCompare(right.name))
+            .map(assignment => {
+                const statuses = assignment.rows.reduce((counts, { submission }) => {
+                    counts[getFilterStatus(submission)]++;
+                    return counts;
+                }, { pending: 0, late: 0, graded: 0 });
+                const rowsHTML = assignment.rows.map(({ submission, idx }) => {
+                    const gradeVal = submission.grade != null ? submission.grade : '';
+                    const assignmentPoints = getAssignmentPoints(submission);
+                    const feedbackVal = submission.feedback != null ? submission.feedback : '';
+                    return `
                         <tr>
                             <td><strong>${escapeHtml(submission.submitterName || 'Unknown')}</strong></td>
-                            <td>${escapeHtml(submission.assignmentName || 'Unknown')}</td>
                             <td>${renderContent(submission.content)}</td>
                             <td>${getStatusBadge(submission)}</td>
                             <td>
-                                <div style="display:flex;align-items:center;gap:6px;">
-                                    <input type="number" min="0" ${assignmentPoints != null ? `max="${assignmentPoints}"` : ''} step="0.5"
-                                        value="${escapeHtml(String(gradeVal))}"
-                                        id="grade-input-${idx}"
-                                        style="width:70px;padding:4px 6px;border-radius:4px;border:1px solid #4b5563;background:#1f2937;color:#f9fafb;font-size:0.85rem;"
-                                        placeholder="${assignmentPoints != null ? `0–${assignmentPoints}` : 'Points'}">
-                                </div>
+                                <input class="ocs__admin-grade-input" type="number" min="0"
+                                    ${assignmentPoints != null ? `max="${assignmentPoints}"` : ''} step="0.5"
+                                    value="${escapeHtml(String(gradeVal))}"
+                                    id="grade-input-${idx}"
+                                    placeholder="${assignmentPoints != null ? `0–${assignmentPoints}` : 'Points'}">
                             </td>
                             <td>
-                                <textarea
-                                    id="feedback-input-${idx}"
-                                    rows="2"
-                                    style="width:100%;min-width:180px;padding:4px 6px;border-radius:4px;border:1px solid #4b5563;background:#1f2937;color:#f9fafb;font-size:0.85rem;resize:vertical;"
-                                    placeholder="Feedback"
-                                >${escapeHtml(String(feedbackVal))}</textarea>
+                                <textarea class="ocs__admin-feedback-input" id="feedback-input-${idx}"
+                                    rows="2" placeholder="Feedback">${escapeHtml(String(feedbackVal))}</textarea>
                             </td>
                             <td><div class="cell-clamp"${cellTitle(submission.comment)}>${submission.comment ? escapeHtml(submission.comment) : '<em style="color:#6b7280">No comment</em>'}</div></td>
                             <td><div class="cell-clamp"${cellTitle(submission.aiSummary)}>${renderAiSummary(submission)}</div></td>
                             <td>${renderQualityScore(submission)}</td>
                             <td>
-                                <div class="submission-actions" style="flex-direction:column;align-items:flex-start;">
-                                    <button
-                                        onclick="saveGrade(${idx}, ${submission.id})"
-                                        style="padding:4px 10px;border-radius:4px;background:#2563eb;color:#fff;font-size:0.8rem;border:none;cursor:pointer;"
-                                    >Save Grade</button>
+                                <div class="submission-actions ocs__admin-submission-actions">
+                                    <button type="button" class="ocs__admin-save-grade" onclick="saveGrade(${idx}, ${submission.id})">Save grade</button>
                                     <button type="button" class="submission-action-btn" onclick="openEditModal(${submission.id})">Edit</button>
-                                    <button type="button" class="submission-action-btn" style="border-color:rgb(220,38,38);background:rgba(185,28,28,0.18);color:rgb(254,202,202);" onclick="deleteSubmission(${submission.id}, ${idx})">Delete</button>
-                                    <span id="grade-status-${idx}" style="font-size:0.75rem;color:#6b7280;"></span>
-                                    <span id="delete-status-${idx}" style="font-size:0.75rem;color:#6b7280;"></span>
+                                    <button type="button" class="submission-action-btn ocs__admin-delete-submission"
+                                        onclick="deleteSubmission(${submission.id}, ${idx})">Delete</button>
+                                    <span id="grade-status-${idx}" class="ocs__admin-action-status"></span>
+                                    <span id="delete-status-${idx}" class="ocs__admin-action-status"></span>
                                 </div>
                             </td>
-                        </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        `;
+                        </tr>`;
+                }).join('');
+
+                return `
+                    <section class="ocs__admin-assignment" aria-labelledby="admin-assignment-${escapeHtml(assignment.key)}">
+                        <header class="ocs__admin-assignment-header">
+                            <div>
+                                <h3 id="admin-assignment-${escapeHtml(assignment.key)}">${escapeHtml(assignment.name)}</h3>
+                                <p>${statuses.pending} pending · ${statuses.late} late · ${statuses.graded} graded</p>
+                            </div>
+                            <span>${assignment.rows.length} submission${assignment.rows.length === 1 ? '' : 's'}</span>
+                        </header>
+                        <div class="ocs__admin-assignment-table">
+                            <table class="submissions-table">
+                                <thead><tr>
+                                    <th>Student</th><th>Submission</th><th>Status</th><th>Grade</th>
+                                    <th>Feedback</th><th>Comment</th><th>AI summary</th><th>Quality</th><th>Actions</th>
+                                </tr></thead>
+                                <tbody>${rowsHTML}</tbody>
+                            </table>
+                        </div>
+                    </section>`;
+            })
+            .join('');
 
         document.getElementById('all-submissions-container').innerHTML = tableHTML;
     }
