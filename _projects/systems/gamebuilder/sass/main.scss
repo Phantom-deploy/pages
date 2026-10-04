@@ -54,6 +54,105 @@
   height: clamp(32rem, calc(100dvh - 14rem), 52rem);
 }
 
+.ocs__gamebuilder-workbench {
+  width: min(100%, 1500px);
+  margin: 0 auto;
+}
+
+.ocs__gamebuilder-workbench-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ocs__gamebuilder-workbench-header h1 {
+  display: block !important;
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.ocs__gamebuilder-workbench-header .ocs__btn {
+  margin-left: auto;
+}
+
+.ocs__gamebuilder-workspace {
+  display: grid;
+  grid-template-columns: minmax(15rem, 20rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+}
+
+.ocs__gamebuilder-workspace.is-builder-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ocs__gamebuilder-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 0.75rem;
+  background: var(--pref-bg-color);
+}
+
+.ocs__gamebuilder-card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.35rem;
+}
+
+.ocs__gamebuilder-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ocs__gamebuilder-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.ocs__gamebuilder-form .ocs__input {
+  width: 100%;
+}
+
+.ocs__gamebuilder-form-help,
+.ocs__gamebuilder-status {
+  margin: 0;
+  color: var(--pref-muted-text-color, var(--pref-text-color));
+  font-size: 0.9rem;
+}
+
+.ocs__gamebuilder-status[data-state="error"] {
+  color: var(--pref-error-color, var(--pref-text-color));
+}
+
+.ocs__gamebuilder-runner {
+  min-width: 0;
+}
+
+.ocs__gamebuilder-runner > .game-runner-container {
+  width: 100%;
+  max-width: none;
+}
+
+.ocs__gamebuilder-runner .editor-textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 24rem;
+  resize: vertical;
+  padding: 0.75rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 0.5rem;
+  background: var(--pref-bg-color);
+  color: var(--pref-text-color);
+  font-family: var(--pref-monospace-font-family, monospace);
+}
+
+.ocs__gamebuilder-workbench .gameContainer {
+  min-height: 24rem;
+}
+
 @media (max-width: 768px) {
   .ocs__gamebuilder-system {
     padding-right: 0.5rem;
@@ -81,5 +180,14 @@
 
   .ocs__gamebuilder-system .creator-layout {
     height: auto;
+  }
+
+  .ocs__gamebuilder-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ocs__gamebuilder-workbench-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 }

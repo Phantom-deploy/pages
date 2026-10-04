@@ -7,10 +7,14 @@ registered project. The project build distributes `index.md` as the
 ## Source layout
 
 - `index.md` is the current GameBuilder entry point. It retains the existing v1
-  builder while the v2 implementation is developed.
+  builder while the initial runner-backed workbench is available at
+  `/gamebuilder/v2/`.
 - `js/` contains scripts owned and distributed by this system.
 - `sass/main.scss` is the system's page-scoped stylesheet entry point.
-- `docs/` retains the existing asset guidance and the GameBuilder v2 proposal.
+- `images/bg/` and `images/sprites/` contain the starter assets and manifests
+  used by the workbench.
+- `docs/` retains the existing asset guidance, workbench page, and GameBuilder
+  v2 proposal.
 - `images/` is reserved for GameBuilder system-owned images. Game/project art
   remains with its owning project.
 

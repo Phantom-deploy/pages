@@ -5,7 +5,9 @@
   style="{% if include.width %}--gr-panel-width: {{ include.width }};{% endif %}{% if game_canvas_height %}--gr-canvas-height: {{ game_canvas_height }};{% endif %}{% if include.editor_height %}--gr-editor-height: {{ include.editor_height }};{% endif %}"
   {% endif %}>
   {% if include.hide_edit != 'true' %}
+  {% if include.hide_challenge != 'true' %}
   {% include runners/fragments/challenge-box.html challenge=include.challenge %}
+  {% endif %}
 
   {% capture game_runner_top_controls %}
       <button type="button" class="ocs__btn utility run" data-hook="run" title="Start Game" aria-label="Start Game"></button>
@@ -194,6 +196,24 @@ import { BaseRunner, GameExecutor } from '{{ site.baseurl }}/assets/js/pages/run
 
   // Keyboard shortcuts (only if editor exists)
   runner.bindShortcut(runGame);
+
+  const runnerId = '{{ include.runner_id }}';
+  const controller = Object.freeze({
+    setCode(code) {
+      if (typeof code !== 'string') {
+        throw new TypeError('Game runner code must be a string');
+      }
+      runner.setValue(code);
+    },
+    getCode: () => runner.getValue(),
+    run: runGame,
+    stop: stopGame
+  });
+  window.OCSGameRunners = window.OCSGameRunners || Object.create(null);
+  window.OCSGameRunners[runnerId] = controller;
+  window.dispatchEvent(new CustomEvent('ocs:game-runner-ready', {
+    detail: { runnerId, controller }
+  }));
 
   if (autostart) {
     // Defer by one tick so DOM/layout/controls are fully attached before boot.

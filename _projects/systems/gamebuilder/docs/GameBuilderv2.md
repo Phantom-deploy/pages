@@ -10,10 +10,24 @@ game on the left and plays/runs it through the existing GAME_RUNNER on the
 right. The builder should produce ordinary GameEngine level code that can be
 inspected, edited, saved, and reused outside the builder.
 
-This is a proposal, not an implementation. The current v1 builder is retained
-in the [GameBuilder page]({{ site.baseurl }}/gamebuilder). The v2 system source
-lives together under `_projects/systems/gamebuilder/`, following the
+The current v1 builder remains available at `/gamebuilder/`. The Stage 1 v2
+workbench is available at `/gamebuilder/v2/`, with system source kept under
+`_projects/systems/gamebuilder/`, following the
 `_projects/systems/calendar/` project pattern.
+
+### Stage 1 implementation boundary
+
+The first workbench increment is intentionally narrow: a versioned builder
+document selects one bundled background and one player sprite, sets the player
+name and normalized position, and generates a single level. Generation targets
+the existing GAME_RUNNER contract; the workbench does not own another canvas,
+game loop, or executor. The builder panel can collapse, and generated code
+replaces runner edits only after an explicit confirmation.
+
+The first increment does not yet include NPCs, barriers, persistence,
+object-literal import, or writing files into the VS Code workspace. Its
+starter manifests/assets live in the registered system package and build to
+`/images/projects/gamebuilder/`.
 
 ## Current state and reuse opportunities
 

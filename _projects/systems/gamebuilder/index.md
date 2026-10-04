@@ -51,6 +51,7 @@ permalink: /gamebuilder/
 <header class="ocs__gamebuilder-header">
   {% include projects/cs-pathway/cs-pathway-menu.html %}
   <div class="ocs__gamebuilder-header-actions">
+    <a href="{{ '/gamebuilder/v2/' | relative_url }}" aria-label="Open the GameBuilder v2 workbench" title="Open the GameBuilder v2 workbench">Workbench</a>
     <a href="{{ '/gamebuilder/doc' | relative_url }}" target="_blank" rel="noopener noreferrer" aria-label="GameBuilder documentation" title="GameBuilder documentation">📜</a>
     <a href="{{ '/rpg/game' | relative_url }}" target="_blank" rel="noopener noreferrer" aria-label="Play the sample RPG" title="Play the sample RPG">🕹️</a>
   </div>
