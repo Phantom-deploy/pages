@@ -1,4 +1,85 @@
 .ocs__gamebuilder-system {
   color: var(--pref-text-color);
   font-family: var(--pref-font-family);
+  margin: 0 auto;
+  padding: 0 1rem 1.5rem;
+}
+
+.ocs__gamebuilder-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.25rem auto 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.ocs__gamebuilder-header .ocs__capstone-nav {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ocs__gamebuilder-header .ocs__links--wide {
+  gap: 0.5rem;
+}
+
+.ocs__gamebuilder-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.ocs__gamebuilder-header-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 0.5rem;
+  color: var(--pref-text-color);
+  text-decoration: none;
+}
+
+.ocs__gamebuilder-header-actions a:hover,
+.ocs__gamebuilder-header-actions a:focus-visible {
+  border-color: var(--pref-accent-color);
+  color: var(--pref-accent-color);
+}
+
+.ocs__gamebuilder-system .creator-layout {
+  height: clamp(32rem, calc(100dvh - 14rem), 52rem);
+}
+
+@media (max-width: 768px) {
+  .ocs__gamebuilder-system {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .ocs__gamebuilder-header {
+    gap: 0.5rem;
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
+  }
+
+  .ocs__gamebuilder-header .ocs__links--wide {
+    gap: 0.25rem;
+  }
+
+  .ocs__gamebuilder-header-actions {
+    gap: 0.25rem;
+  }
+
+  .ocs__gamebuilder-header-actions a {
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+  }
+
+  .ocs__gamebuilder-system .creator-layout {
+    height: auto;
+  }
 }

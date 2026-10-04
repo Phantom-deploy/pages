@@ -57,6 +57,20 @@ lives together under `_projects/systems/gamebuilder/`, following the
 
 ## Proposed workspace
 
+### Navigation and product boundaries
+
+- **Home** remains the student-built onboarding adventure. GameBuilder should
+  link to it, not replace or take ownership of it.
+- **Games** is the collection that GameBuilder should ultimately help create.
+  Keep it distinct from the onboarding adventure and make the intended
+  authoring path clear: configure/build in GameBuilder, then publish or add the
+  resulting game to the Games collection.
+- **GameBuilder** is the authoring system itself. Keep these destinations
+  together in one compact title/navigation bar; the active navigation item
+  identifies the page, so a second large GameBuilder title is redundant.
+- Documentation and play/test shortcuts belong at the far end of that bar and
+  should remain accessible by keyboard with descriptive labels.
+
 ```text
 GameBuilder page
 └── .ocs__container.ocs__gamebuilder

@@ -2,7 +2,7 @@
 layout: opencs
 title: GameBuilder
 description: Helping programmers understand how to create a game
-permalink: /gamebuilder
+permalink: /gamebuilder/
 ---
 
 <!--
@@ -48,12 +48,13 @@ permalink: /gamebuilder
 </style>
 
 <main class="ocs__gamebuilder-system">
-<!-- title banner for the GameBuilder page -->
-<div class="gamebuilder-title">
-  {{page.title}}
-  <a href="{{site.baseurl}}/gamebuilder/doc" target="_blank" rel="noopener noreferrer">📜</a>
-  <a href="{{site.baseurl}}/rpg/game" target="_blank" rel="noopener noreferrer">🕹️</a>
-</div>
+<header class="ocs__gamebuilder-header">
+  {% include projects/cs-pathway/cs-pathway-menu.html %}
+  <div class="ocs__gamebuilder-header-actions">
+    <a href="{{ '/gamebuilder/doc' | relative_url }}" target="_blank" rel="noopener noreferrer" aria-label="GameBuilder documentation" title="GameBuilder documentation">📜</a>
+    <a href="{{ '/rpg/game' | relative_url }}" target="_blank" rel="noopener noreferrer" aria-label="Play the sample RPG" title="Play the sample RPG">🕹️</a>
+  </div>
+</header>
 
 <!-- Ensure GameTemplatesV1 is available as a global by loading templates.js -->
 <script>
