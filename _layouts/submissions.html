@@ -78,7 +78,7 @@ active_tab: submissions
                             <span>Status</span>
                             <select id="admin-filter-status">
                                 <option value="">All statuses</option>
-                                <option value="pending">Pending review</option>
+                                <option value="pending" selected>Pending review</option>
                                 <option value="graded">Graded</option>
                                 <option value="late">Late</option>
                             </select>
@@ -1474,15 +1474,19 @@ active_tab: submissions
         const filterQuality = document.getElementById('admin-filter-quality');
         const clearFilters = document.getElementById('admin-clear-filters');
 
-        [filterAssignment, filterStudent, filterStatus, filterQuality].forEach(filter => {
+        [filterStudent, filterStatus, filterQuality].forEach(filter => {
             if (filter) {
                 filter.addEventListener(filter.tagName === 'SELECT' ? 'change' : 'input', applyFilters);
             }
         });
+        filterAssignment.addEventListener('change', () => {
+            filterStatus.value = filterAssignment.value ? '' : 'pending';
+            applyFilters();
+        });
         clearFilters.addEventListener('click', () => {
             filterAssignment.value = '';
             filterStudent.value = '';
-            filterStatus.value = '';
+            filterStatus.value = 'pending';
             filterQuality.value = '';
             applyFilters();
         });
