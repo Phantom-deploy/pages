@@ -1,6 +1,6 @@
 import { createAssetCatalog } from './asset-catalog.mjs';
 import { createDefaultBuilderState, createNpcState } from './builder-state.mjs';
-import { generateLevelCode } from './code-generator.mjs';
+import { generateLevelCode } from './code-generator.mjs?v=2';
 import { waitForGameRunner } from './runner-bridge.mjs';
 
 const root = document.querySelector('[data-gamebuilder-workbench]');
