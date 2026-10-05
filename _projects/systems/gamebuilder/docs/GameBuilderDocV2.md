@@ -1,7 +1,7 @@
 # GameBuilder v2 — implementation status and design
 
 > Design and implementation notes retained with the GameBuilder system.
-> Updated 2026-10-04.
+> Updated 2026-10-05.
 
 ## Purpose
 
@@ -18,12 +18,12 @@ available at `/gamebuilder/v2/`, with system source kept under
 ## Current implementation snapshot
 
 The current v2 page is a working, runner-backed builder for a game name,
-background, player, and zero or more NPCs. It generates a standard GameEngine
-level module and sends it to the existing GAME_RUNNER editor. GAME_RUNNER
-remains the only code editor and execution surface; GameBuilder does not create
-a second canvas, game loop, or executor. Replacing runner code is explicit and
-prompts for confirmation when existing code differs from the last generated
-version.
+background, player, zero or more NPCs, and multiple open spline barriers. It
+generates a standard GameEngine level module and sends it to the existing
+GAME_RUNNER editor. GAME_RUNNER remains the only code editor and execution
+surface; GameBuilder does not create a second canvas, game loop, or executor.
+Replacing runner code is explicit and prompts for confirmation when existing
+code differs from the last generated version.
 
 ### Current page composition
 
@@ -38,8 +38,10 @@ GameBuilder v2 page
     │   ├── Game name
     │   ├── Environment fieldset: background selection
     │   ├── Player fieldset: name, sprite, normalized X/Y position
-    │   └── NPCs fieldset: Add NPC and repeatable NPC configuration cards
-    │       └── Each NPC: name, sprite, normalized X/Y position, greeting
+    │   ├── NPCs fieldset: Add NPC and repeatable NPC configuration cards
+    │   │   └── Each NPC: name, sprite, normalized X/Y position, greeting
+    │   └── Spline barriers: point placement, coordinate entry, undo, edit,
+    │       finish/cancel, and removal controls
     └── Right: shared GAME_RUNNER include
         ├── Existing runner controls and source editor
         └── Game output/canvas
@@ -52,18 +54,21 @@ Controls use semantic fieldsets, labels, inputs, selects, and buttons, enhanced
 with GameBuilder-scoped OCS classes and preference-aware theme tokens.
 
 Generated code defines `backgroundData`, `playerData`, and one named
-`npcDataN` object per NPC separately, then references those data objects in
-`this.classes`. The asset manifests and focused `.mjs` modules are authored
-under `_projects/systems/gamebuilder/` and distributed by the registered
-project build.
+`npcDataN` or `barrierDataN` object per configured object separately, then
+references those data objects in `this.classes`. Barrier points are stored in
+normalized 0–1 coordinates and rendered/collided by the reusable
+`assets/js/GameEnginev1.1/essentials/SplineBarrier.js` class. The asset
+manifests and focused `.mjs` modules are authored under
+`_projects/systems/gamebuilder/` and distributed by the registered project
+build.
 
-### Not implemented yet
+### Still not implemented
 
-Barriers, importing object-literal code from GAME_RUNNER back into the builder,
-builder configuration save/load, code/config export controls, placement tools,
-and direct writing of artifacts into the VS Code workspace remain future
-work. NPC editing and multi-NPC code generation are implemented; these are not
-pending Stage 2 items.
+Importing object-literal code from GAME_RUNNER back into the builder, builder
+configuration save/load, code/config export controls, and direct writing of
+artifacts into the VS Code workspace remain future work. NPC and spline
+barrier editing/code generation are implemented; these are not pending Stage 2
+items.
 
 ## Current state and reuse opportunities
 
@@ -145,8 +150,8 @@ GameBuilder page
 ```
 
 The left side is the authoring surface: forms, asset selection, object
-properties, and eventually placement tools. The right side is the canonical
-execution surface: use GAME_RUNNER to edit and run the generated level code.
+properties, and point placement. The right side is the canonical execution
+surface: use GAME_RUNNER to edit and run the generated level code.
 Do not maintain a second canvas lifecycle, run loop, or game editor in
 GameBuilder.
 
@@ -225,21 +230,37 @@ implementation details, but its contents should cover:
     "spriteKey": "chillguy",
     "position": { "x": 0.5, "y": 0.8 }
   },
-  "npcs": []
+  "npcs": [],
+  "barriers": [
+    {
+      "id": "barrier-1",
+      "name": "Barrier 1",
+      "points": [{ "x": 0.1, "y": 0.3 }, { "x": 0.5, "y": 0.25 }, { "x": 0.9, "y": 0.3 }]
+    }
+  ]
 }
 ```
 
 This is the current v2 document shape. The background is selected by its
 manifest-derived key; player and NPC positions are normalized from 0 to 1.
-Barriers and other object collections are not in the current schema yet.
+Each barrier is an open spline with at least two normalized control points.
+During authoring, click the GAME_RUNNER preview to add points, or use the
+normalized X/Y fields as a keyboard-accessible alternative. Finish the active
+barrier before generating code; the editor also supports continuing an
+existing barrier, undoing the last point, canceling edits, and removing a
+barrier. Curves are smoothed with Catmull–Rom interpolation by the shared
+GameEngine class. Finished paths remain visible in the OCS accent color without
+authoring-point markers; the runtime renderer uses the same theme color. During
+game updates, the runtime class resolves player overlap against the spline.
+Barriers and NPCs resize with the logical canvas dimensions, not the browser's
+incidental display pixels.
 
 Store manifest keys (or another stable asset identifier), not display labels or
 duplicated asset metadata. At generation time, resolve keys through the
 manifest-derived asset catalog and report missing assets as visible validation
-errors. Use one documented coordinate space for positions and barriers; map
-from the builder's displayed dimensions to the runner's logical game
-dimensions for future spatial tools, rather than persisting incidental screen
-pixels.
+errors. Player/NPC positions and spline control points use normalized
+coordinates from 0 through 1, mapped against the runner's logical game
+dimensions at runtime rather than persisting incidental screen pixels.
 
 Keep the schema extensible for future object types, but do not build a generic
 plugin system until there is a real second use case. Treat each object as a

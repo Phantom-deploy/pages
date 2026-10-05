@@ -8,8 +8,9 @@
  * @data
  * Reads background and sprite manifest JSON from the published
  * `/images/projects/gamebuilder/` paths. The form edits a versioned builder
- * document containing `name`, `backgroundKey`, `player`, and a list of `npcs`.
- * Player and NPC positions use normalized `x`/`y` values from 0 to 1.
+ * document containing `name`, `backgroundKey`, `player`, `npcs`, and open
+ * spline barriers. Positions and barrier points use normalized `x`/`y` values
+ * from 0 to 1.
  *
  * @usage
  * Load this module from the GameBuilder v2 page after its workbench markup and
@@ -19,6 +20,7 @@
  * source through the runner controller's `setCode` method.
  */
 import { createAssetCatalog } from './asset-catalog.mjs';
+import { createBarrierPlacementEditor } from './barrier-editor.mjs';
 import { createDefaultBuilderState, createNpcState } from './builder-state.mjs';
 import { generateLevelCode } from './code-generator.mjs?v=2';
 import { waitForGameRunner } from './runner-bridge.mjs';
@@ -36,6 +38,12 @@ const form = root.querySelector('[data-role="builder-form"]');
 const generateButton = root.querySelector('[data-action="generate"]');
 const npcList = form.querySelector('[data-role="npc-list"]');
 const npcEmptyMessage = form.querySelector('[data-role="npc-empty"]');
+const barrierList = form.querySelector('[data-role="barrier-list"]');
+const barrierEmptyMessage = form.querySelector('[data-role="barrier-empty"]');
+const barrierTools = form.querySelector('[data-role="barrier-tools"]');
+const addBarrierButton = form.querySelector('[data-action="add-barrier"]');
+const barrierXInput = form.elements.namedItem('barrier-point-x');
+const barrierYInput = form.elements.namedItem('barrier-point-y');
 
 function setStatus(message, state = 'info') {
   status.textContent = message;
@@ -174,6 +182,43 @@ function renderNpcs(npcs, sprites) {
   }
 }
 
+function renderBarriers(barriers, activeId) {
+  barrierList.replaceChildren();
+  barrierEmptyMessage.hidden = barriers.length > 0;
+  for (const [index, barrier] of barriers.entries()) {
+    const card = document.createElement('article');
+    card.className = 'ocs__gamebuilder-barrier';
+    card.dataset.barrierId = barrier.id;
+
+    const title = document.createElement('h3');
+    title.textContent = barrier.name;
+    const pointCount = document.createElement('p');
+    pointCount.textContent = `${barrier.points.length} ${barrier.points.length === 1 ? 'point' : 'points'}`;
+
+    const actions = document.createElement('div');
+    actions.className = 'ocs__gamebuilder-barrier-card-actions';
+    const editButton = document.createElement('button');
+    editButton.className = 'ocs__btn';
+    editButton.type = 'button';
+    editButton.dataset.action = 'edit-barrier';
+    editButton.dataset.barrierId = barrier.id;
+    editButton.textContent = activeId === barrier.id ? 'Editing' : `Edit Barrier ${index + 1}`;
+    editButton.disabled = Boolean(activeId);
+    editButton.setAttribute('aria-label', `Edit ${barrier.name}`);
+    const removeButton = document.createElement('button');
+    removeButton.className = 'ocs__btn';
+    removeButton.type = 'button';
+    removeButton.dataset.action = 'remove-barrier';
+    removeButton.dataset.barrierId = barrier.id;
+    removeButton.textContent = 'Remove';
+    removeButton.setAttribute('aria-label', `Remove ${barrier.name}`);
+    actions.append(editButton, removeButton);
+
+    card.append(title, pointCount, actions);
+    barrierList.append(card);
+  }
+}
+
 collapseButton.addEventListener('click', () => {
   const expanded = collapseButton.getAttribute('aria-expanded') === 'true';
   collapseButton.setAttribute('aria-expanded', String(!expanded));
@@ -198,9 +243,50 @@ try {
     : catalog.sprites.keys().next().value;
   let state = createDefaultBuilderState(firstBackground, defaultSprite);
   let nextNpcIndex = 0;
+  let nextBarrierIndex = 0;
+  let activeBarrierId = null;
+  let barrierEditSnapshot = null;
   let lastGeneratedCode = '';
+  const barrierEditor = createBarrierPlacementEditor(
+    root.querySelector('.ocs__gamebuilder-runner .gameContainer'),
+    (barrierId, point) => {
+      const barrier = state.barriers.find((entry) => entry.id === barrierId);
+      if (!barrier) {
+        throw new Error(`Barrier "${barrierId}" is no longer available`);
+      }
+      barrier.points.push(point);
+      barrierXInput.value = String(point.x);
+      barrierYInput.value = String(point.y);
+      updateBarrierEditor();
+      setStatus(`${barrier.name}: point ${barrier.points.length} added.`);
+    }
+  );
   fillForm(state);
   renderNpcs(state.npcs, catalog.sprites);
+  renderBarriers(state.barriers, activeBarrierId);
+
+  function updateBarrierEditor() {
+    barrierTools.hidden = !activeBarrierId;
+    addBarrierButton.disabled = Boolean(activeBarrierId);
+    renderBarriers(state.barriers, activeBarrierId);
+    barrierEditor.setBarriers(state.barriers, activeBarrierId);
+  }
+
+  function beginBarrierEdit(barrierId) {
+    const barrier = state.barriers.find((entry) => entry.id === barrierId);
+    if (!barrier) {
+      throw new Error(`Barrier "${barrierId}" is no longer available`);
+    }
+    activeBarrierId = barrierId;
+    barrierEditSnapshot = barrier.points.map((point) => ({ ...point }));
+    const lastPoint = barrier.points.at(-1);
+    if (lastPoint) {
+      barrierXInput.value = String(lastPoint.x);
+      barrierYInput.value = String(lastPoint.y);
+    }
+    updateBarrierEditor();
+    setStatus(`Editing ${barrier.name}. Click the preview to add points.`);
+  }
 
   form.addEventListener('click', (event) => {
     const button = event.target.closest('[data-action]');
@@ -220,6 +306,72 @@ try {
       state.npcs = state.npcs.filter((npc) => npc.id !== npcId);
       renderNpcs(state.npcs, catalog.sprites);
       setStatus('NPC removed. Generate code to sync the change to GAME_RUNNER.');
+    } else if (button.dataset.action === 'add-barrier') {
+      if (activeBarrierId) return;
+      state = readForm(state);
+      const index = nextBarrierIndex++;
+      const barrier = { id: `barrier-${index + 1}`, name: `Barrier ${index + 1}`, points: [] };
+      state.barriers.push(barrier);
+      beginBarrierEdit(barrier.id);
+    } else if (button.dataset.action === 'edit-barrier') {
+      if (activeBarrierId) return;
+      state = readForm(state);
+      beginBarrierEdit(button.dataset.barrierId);
+    } else if (button.dataset.action === 'remove-barrier') {
+      const barrierId = button.dataset.barrierId;
+      state = readForm(state);
+      state.barriers = state.barriers.filter((barrier) => barrier.id !== barrierId);
+      if (activeBarrierId === barrierId) {
+        activeBarrierId = null;
+        barrierEditSnapshot = null;
+      }
+      updateBarrierEditor();
+      setStatus('Barrier removed. Generate code to sync the change to GAME_RUNNER.');
+    } else if (button.dataset.action === 'add-barrier-point') {
+      if (!activeBarrierId) return;
+      const x = barrierXInput.value === '' ? Number.NaN : Number(barrierXInput.value);
+      const y = barrierYInput.value === '' ? Number.NaN : Number(barrierYInput.value);
+      if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 1 || y < 0 || y > 1) {
+        setStatus('Point X and Y must both be between 0 and 1.', 'error');
+        return;
+      }
+      const barrier = state.barriers.find((entry) => entry.id === activeBarrierId);
+      barrier.points.push({ x, y });
+      updateBarrierEditor();
+      setStatus(`${barrier.name}: point ${barrier.points.length} added.`);
+    } else if (button.dataset.action === 'undo-barrier-point') {
+      const barrier = state.barriers.find((entry) => entry.id === activeBarrierId);
+      if (!barrier?.points.length) return;
+      barrier.points.pop();
+      const previousPoint = barrier.points.at(-1);
+      barrierXInput.value = String(previousPoint?.x ?? 0.5);
+      barrierYInput.value = String(previousPoint?.y ?? 0.5);
+      updateBarrierEditor();
+      setStatus(`${barrier.name}: last point removed.`);
+    } else if (button.dataset.action === 'finish-barrier') {
+      const barrier = state.barriers.find((entry) => entry.id === activeBarrierId);
+      if (!barrier || barrier.points.length < 2) {
+        setStatus('Add at least two points before finishing a barrier.', 'error');
+        return;
+      }
+      activeBarrierId = null;
+      barrierEditSnapshot = null;
+      updateBarrierEditor();
+      addBarrierButton.focus();
+      setStatus(`${barrier.name} finished. Add another barrier or generate code.`);
+    } else if (button.dataset.action === 'cancel-barrier') {
+      const barrierId = activeBarrierId;
+      const barrier = state.barriers.find((entry) => entry.id === barrierId);
+      if (barrierEditSnapshot?.length) {
+        barrier.points = barrierEditSnapshot;
+      } else {
+        state.barriers = state.barriers.filter((entry) => entry.id !== barrierId);
+      }
+      activeBarrierId = null;
+      barrierEditSnapshot = null;
+      updateBarrierEditor();
+      addBarrierButton.focus();
+      setStatus('Barrier editing canceled.');
     }
   });
 
@@ -239,6 +391,10 @@ try {
 
   generateButton.addEventListener('click', () => {
     state = readForm(state);
+    if (activeBarrierId) {
+      setStatus('Finish or cancel the active barrier before generating code.', 'error');
+      return;
+    }
     const result = generateLevelCode(state, catalog);
     if (result.errors.length > 0) {
       setStatus(result.errors.map((error) => error.message).join(' '), 'error');

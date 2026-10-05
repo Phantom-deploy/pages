@@ -16,6 +16,12 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
 - The workbench supports zero or more NPCs, each with its own sprite, greeting,
   and canvas-relative position; generated levels create one `Npc` object per
   configured NPC.
+- The workbench supports multiple open spline barriers. Click the shared runner
+  preview to add normalized control points, or enter X/Y values and add a point
+  with the keyboard. Completed barriers generate independent `SplineBarrier`
+  objects from the shared GameEngine. Finished paths stay visible in the theme
+  accent color without their temporary point markers; the runtime barrier also
+  resolves player collisions.
 - `docs/` retains the existing asset guidance, workbench page, and GameBuilder
   v2 proposal.
 - `images/` is reserved for GameBuilder system-owned images. Game/project art

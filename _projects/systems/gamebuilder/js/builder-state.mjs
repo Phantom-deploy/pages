@@ -6,9 +6,9 @@
  *
  * @data
  * Schema version 1 stores the game `name`, a manifest-backed `backgroundKey`,
- * one `player`, and zero or more `npcs`. Player and NPC positions are
- * normalized coordinates in the inclusive range 0–1. NPC records also store
- * a unique `id`, `name`, manifest-backed `spriteKey`, and `greeting`.
+ * one `player`, zero or more `npcs`, and zero or more open spline `barriers`.
+ * Positions and barrier control points use normalized coordinates in the
+ * inclusive range 0–1. NPCs and barriers have unique identifiers.
  *
  * @usage
  * Use `createDefaultBuilderState(backgroundKey, spriteKey)` to initialize the
@@ -30,7 +30,8 @@ export function createDefaultBuilderState(backgroundKey, spriteKey) {
       spriteKey,
       position: { x: 0.5, y: 0.8 }
     },
-    npcs: []
+    npcs: [],
+    barriers: []
   };
 }
 
@@ -113,6 +114,39 @@ export function validateBuilderState(state, catalog) {
         });
       }
     }
+  });
+
+  if (!Array.isArray(state.barriers)) {
+    errors.push({ field: 'barriers', message: 'Barrier settings must be a list.' });
+    return errors;
+  }
+
+  const barrierIds = new Set();
+  state.barriers.forEach((barrier, index) => {
+    const field = `barriers.${index}`;
+    if (!barrier || typeof barrier.id !== 'string' || !barrier.id.trim() || barrierIds.has(barrier.id)) {
+      errors.push({ field: `${field}.id`, message: `Barrier ${index + 1} must have a unique identifier.` });
+    } else {
+      barrierIds.add(barrier.id);
+    }
+    if (typeof barrier?.name !== 'string' || !barrier.name.trim()) {
+      errors.push({ field: `${field}.name`, message: `Enter a name for barrier ${index + 1}.` });
+    }
+    if (!Array.isArray(barrier?.points) || barrier.points.length < 2) {
+      errors.push({ field: `${field}.points`, message: `Barrier ${index + 1} needs at least two points.` });
+      return;
+    }
+    barrier.points.forEach((point, pointIndex) => {
+      for (const axis of ['x', 'y']) {
+        const value = point?.[axis];
+        if (!Number.isFinite(value) || value < 0 || value > 1) {
+          errors.push({
+            field: `${field}.points.${pointIndex}.${axis}`,
+            message: `Barrier ${index + 1} point ${pointIndex + 1} ${axis.toUpperCase()} must be between 0 and 1.`
+          });
+        }
+      }
+    });
   });
 
   return errors;

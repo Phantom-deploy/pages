@@ -3,14 +3,15 @@
  * @description
  * Converts a GameBuilder document into a JavaScript level module accepted by
  * the shared GAME_RUNNER and GameEngine. Definitions for the background,
- * player, and each NPC are emitted separately from the `this.classes` list.
+ * player, each NPC, and each spline barrier are emitted separately from the
+ * `this.classes` list.
  *
  * @data
  * Inputs are a schema-versioned builder document and the catalog produced by
  * `asset-catalog.mjs`. Successful output contains `GameControl` and
- * `gameLevelClasses` exports, engine imports, resolved asset URLs, and one
- * `Npc` data object for each configured NPC. Invalid input returns structured
- * validation errors without generated code.
+ * `gameLevelClasses` exports, engine imports, resolved asset URLs, and
+ * separate data objects for configured NPCs and normalized spline barriers.
+ * Invalid input returns structured validation errors without generated code.
  *
  * @usage
  * Call `generateLevelCode(state, catalog)` after reading the form. If
@@ -74,21 +75,36 @@ export function generateLevelCode(state, catalog) {
       hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 }
     };`;
   });
+  const barrierDefinitions = state.barriers.map((barrier, index) => `    const barrierData${index + 1} = {
+      id: ${quote(barrier.id)},
+      coordinateSpace: "normalized",
+      splinePoints: ${JSON.stringify(barrier.points)}
+    };`);
 
   const npcImport = state.npcs.length > 0
     ? "import Npc from '/assets/js/GameEnginev1.1/essentials/Npc.js';\n"
     : '';
+  const barrierImport = state.barriers.length > 0
+    ? "import SplineBarrier from '/assets/js/GameEnginev1.1/essentials/SplineBarrier.js';\n"
+    : '';
   const npcDefinitionsCode = npcDefinitions.length > 0
     ? `\n${npcDefinitions.join('\n')}\n`
+    : '';
+  const barrierDefinitionsCode = barrierDefinitions.length > 0
+    ? `\n${barrierDefinitions.join('\n')}\n`
     : '';
   const npcEntries = state.npcs
     .map((_, index) => `      { class: Npc, data: npcData${index + 1} }`)
     .join(',\n');
   const npcClassesCode = npcEntries ? `,\n${npcEntries}` : '';
+  const barrierEntries = state.barriers
+    .map((_, index) => `      { class: SplineBarrier, data: barrierData${index + 1} }`)
+    .join(',\n');
+  const barrierClassesCode = barrierEntries ? `,\n${barrierEntries}` : '';
   const code = `import GameControl from '/assets/js/GameEnginev1.1/essentials/GameControl.js';
 import GameEnvBackground from '/assets/js/GameEnginev1.1/essentials/GameEnvBackground.js';
 import Player from '/assets/js/GameEnginev1.1/essentials/Player.js';
-${npcImport}
+${npcImport}${barrierImport}
 
 class ${className} {
   static displayName = ${quote(state.name.trim())};
@@ -111,10 +127,11 @@ ${directions}
       hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 }
     };
 ${npcDefinitionsCode}
+${barrierDefinitionsCode}
 
     this.classes = [
       { class: GameEnvBackground, data: backgroundData },
-      { class: Player, data: playerData }${npcClassesCode}
+      { class: Player, data: playerData }${npcClassesCode}${barrierClassesCode}
     ];
   }
 }

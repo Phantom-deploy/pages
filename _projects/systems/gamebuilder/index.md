@@ -65,7 +65,33 @@ permalink: /gamebuilder/v2/
           <p class="ocs__gamebuilder-npc-empty" data-role="npc-empty">No NPCs added yet.</p>
           <div class="ocs__gamebuilder-npc-list" data-role="npc-list"></div>
         </fieldset>
-        <p class="ocs__gamebuilder-form-help">Positions are proportions of the runner canvas. Movement uses WASD.</p>
+        <fieldset class="ocs__gamebuilder-barriers" data-role="barriers-fieldset">
+          <legend>Spline barriers</legend>
+          <p class="ocs__gamebuilder-form-help">Add an open, curved barrier by clicking points on the game preview. Coordinates are relative to the preview.</p>
+          <button class="ocs__btn" type="button" data-action="add-barrier">Add spline barrier</button>
+          <p class="ocs__gamebuilder-barrier-empty" data-role="barrier-empty">No barriers added yet.</p>
+          <div class="ocs__gamebuilder-barrier-list" data-role="barrier-list"></div>
+          <div class="ocs__gamebuilder-barrier-tools" data-role="barrier-tools" hidden>
+            <p data-role="barrier-instructions">Click the preview to place points. Add at least two points, then finish the barrier.</p>
+            <div class="ocs__gamebuilder-barrier-point-fields">
+              <label>
+                Point X (0–1)
+                <input class="ocs__input" name="barrier-point-x" type="number" min="0" max="1" step="0.01" value="0.5">
+              </label>
+              <label>
+                Point Y (0–1)
+                <input class="ocs__input" name="barrier-point-y" type="number" min="0" max="1" step="0.01" value="0.5">
+              </label>
+            </div>
+            <div class="ocs__gamebuilder-barrier-actions">
+              <button class="ocs__btn" type="button" data-action="add-barrier-point">Add point</button>
+              <button class="ocs__btn" type="button" data-action="undo-barrier-point">Undo point</button>
+              <button class="ocs__btn primary" type="button" data-action="finish-barrier">Finish barrier</button>
+              <button class="ocs__btn" type="button" data-action="cancel-barrier">Cancel</button>
+            </div>
+          </div>
+        </fieldset>
+        <p class="ocs__gamebuilder-form-help">Player and NPC positions use proportions of the runner canvas. Movement uses WASD.</p>
       </form>
     </section>
 
