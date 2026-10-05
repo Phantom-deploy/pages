@@ -237,7 +237,6 @@ function renderBarriers(barriers, activeId) {
     removeButton.setAttribute('aria-label', `Remove ${barrier.name}`);
     if (activeId === barrier.id) {
       for (const [action, label, disabled] of [
-        ['add-barrier-point', 'Add point', false],
         ['undo-barrier-point', 'Undo point', barrier.points.length === 0],
         ['finish-barrier', 'Finish barrier', barrier.points.length < 2],
         ['cancel-barrier', 'Cancel', false]
@@ -249,9 +248,6 @@ function renderBarriers(barriers, activeId) {
         button.dataset.barrierId = barrier.id;
         button.textContent = label;
         button.disabled = disabled;
-        if (action === 'add-barrier-point') {
-          button.title = 'Choose a position on the preview to add a point';
-        }
         actions.append(button);
       }
     } else {
@@ -376,20 +372,12 @@ try {
       setStatus(
         `${barrier.name} ${barrier.visible ? 'shown' : 'hidden'}. Hidden barriers still block player movement.`
       );
-    } else if (button.dataset.action === 'add-barrier-point') {
-      if (!activeBarrierId) return;
-      const barrier = state.barriers.find((entry) => entry.id === activeBarrierId);
-      root.querySelector('.ocs__gamebuilder-runner .gameContainer').scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-      setStatus(`${barrier.name}: click the preview to add the next point.`);
     } else if (button.dataset.action === 'undo-barrier-point') {
       const barrier = state.barriers.find((entry) => entry.id === activeBarrierId);
       if (!barrier?.points.length) return;
       barrier.points.pop();
       updateBarrierEditor();
-      const nextAction = barrier.points.length > 0 ? 'undo-barrier-point' : 'add-barrier-point';
+      const nextAction = barrier.points.length > 0 ? 'undo-barrier-point' : 'cancel-barrier';
       barrierList.querySelector(`[data-action="${nextAction}"]`).focus({ preventScroll: true });
       setStatus(`${barrier.name}: last point removed.`);
     } else if (button.dataset.action === 'finish-barrier') {

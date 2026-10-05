@@ -18,8 +18,8 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
   configured NPC.
 - The workbench supports multiple open spline barriers. Click the shared runner
   preview to add normalized control points; no coordinate inputs are needed.
-  Add point brings the preview into view, Undo point removes the last point
-  added, and Finish barrier completes the curve once it has at least two points.
+  Undo point removes the last point added, and Finish barrier completes the
+  curve once it has at least two points.
   These controls stay inside the active barrier card; Edit reopens them.
   Each barrier card lists the full control-point sequence,
   which also remains visible in the preview. Cards can hide or show a barrier;

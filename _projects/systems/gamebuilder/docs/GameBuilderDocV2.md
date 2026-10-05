@@ -244,10 +244,9 @@ implementation details, but its contents should cover:
 This is the current v2 document shape. The background is selected by its
 manifest-derived key; player and NPC positions are normalized from 0 to 1.
 Each barrier is an open spline with at least two normalized control points.
-During authoring, click the GAME_RUNNER preview to add points, or use the
-**Add point** button to bring the preview into view before clicking a position.
-There are no coordinate-editing inputs or separate placement panel. **Add
-point**, **Undo point**, **Finish barrier**, and **Cancel** live inside the active
+During authoring, click the GAME_RUNNER preview directly to add points.
+There are no coordinate-editing inputs, Add point button, or separate placement
+panel. **Undo point**, **Finish barrier**, and **Cancel** live inside the active
 barrier card. Undo works as a stack: each press removes the most recently added
 point. Finish requires at least two points. **Edit** reopens the same controls
 for a completed barrier; Cancel restores its points from before editing.
