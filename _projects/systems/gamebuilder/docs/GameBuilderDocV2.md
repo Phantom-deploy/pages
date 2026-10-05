@@ -480,9 +480,36 @@ Use separate persistence for structured configuration and runner source code.
 - Do not imply that browser-local saves synchronize between devices or users.
   Account/server persistence can be a later, separate decision.
 
-When a builder document is loaded, regenerate its source and offer to apply it
-to the runner editor. If the runner has existing saved/manual code, preserve it
-until the user accepts replacement.
+When a saved workspace is loaded, restore its exact editor source and matching
+panel configuration without regeneration. For a configuration-only import,
+offer generation explicitly. Preserve existing saved/manual code until the
+user accepts replacement.
+
+### Runner save-state notification (required, not yet implemented)
+
+After successfully persisting editor source, the runner should emit a
+page-scoped `ocs:runner-saved` notification with a versioned payload identifying
+the runner, its storage key, the exact saved source, and a save revision.
+GameBuilder should subscribe through its runner bridge and associate that
+snapshot with the active game/module and matching panel configuration. Other
+runner pages keep their current Save Code behavior without a workspace
+subscriber.
+
+This event means **source saved**, not **complete workspace saved**, **code
+valid**, or **safe to regenerate**. GameBuilder must report its own persistence
+success or failure separately. When complete-workspace saving is wired into
+the runner's Save action, use an explicit awaited save hook rather than relying
+on asynchronous event listeners to delay success feedback.
+
+Track saved/dirty source separately from builder/code synchronization: saved
+manual edits may still differ from generated code. A save notification can
+offer later AST-based panel import, but must never automatically parse, execute,
+convert, or overwrite code. Storage failure must produce visible error feedback
+and no saved event. Saved state must also be queryable through the runner
+controller so a late subscriber can initialize correctly.
+
+See the [save-state contract in the workspace roadmap](./GamifyWorkspaceRoadmap.md#runner-save-state-contract)
+for the proposed payload and acceptance criteria.
 
 ## Implementation sequence
 

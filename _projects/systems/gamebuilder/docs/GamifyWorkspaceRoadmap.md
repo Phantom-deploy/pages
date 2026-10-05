@@ -13,12 +13,11 @@ not a replacement for learning code.
 
 Confirmed decisions:
 
-- The first persistence milestone is **browser-local save plus portable
-  JSON/source export**, not direct writes into VS Code.
-- Preserve existing Gamify behavior. Unsupported components and callbacks stay
-  code-owned while panel support grows; do not simplify or discard them.
+- The first persistence milestone is **browser-local save plus portable JSON/source export**, not direct writes into VS Code.
+- Preserve existing Gamify behavior. Unsupported components and callbacks stay code-owned while panel support grows; do not simplify or discard them.
 - Load/edit/save has priority over new gameplay controls.
 - Game-in-Game and gravity are the next workspace feature targets.
+- Successful runner source saves must emit an explicit save-state notification that GameBuilder can observe without reaching into editor/storage internals.
 
 This is a discovery roadmap, not a gated, executable migration plan. A formal
 feature specification and reviewed design artifacts have not been supplied.
@@ -47,6 +46,59 @@ the reported symptom before changing the shared runner.
 
 Saving only a runner entry module also does not save changes to imported level
 files. A complete game save must include the editable module sources.
+
+### Runner save-state contract
+
+Proposed event: `ocs:runner-saved`, dispatched from the runner container and
+bubbling within the page. Keep the event generic so other CodeRunner consumers
+can reuse it, while GameBuilder filters by its own runner identity.
+
+Proposed versioned detail:
+
+```js
+{
+  schemaVersion: 1,
+  runnerId: "gamebuilder-v2",
+  storageKey: "_gamebuilder_v2__gamebuilder-v2",
+  source: "<exact source successfully persisted>",
+  revision: "<unique save revision>"
+}
+```
+
+The storage key above is illustrative; use the actual runner key, not a
+hardcoded value. The event describes a source save. Game identity, selected
+module, and builder configuration belong to the workspace, not the generic
+runner. Capture the game/module association at save initiation, especially
+if workspace persistence later becomes asynchronous.
+
+- Emit only after storage reports success, for both button and programmatic
+  saves through the same save operation. A runner with no persistence key must
+  not claim a durable save.
+- Expose the saved snapshot/state through the controller for late subscribers.
+  Distinguish restored source from a newly completed save; initialization does
+  not emit a misleading new-save event.
+- Track source dirtiness by comparing current text with the saved snapshot.
+  Separately track whether it matches the last generated source and whether
+  the panel configuration has changed.
+- GameBuilder consumes the notification through `runner-bridge.mjs` and
+  captures the matching source/configuration, without automatic generation.
+  A failed workspace save leaves the workspace dirty even if source storage
+  succeeded.
+- For an integrated Save action, provide an explicit awaited workspace-save
+  hook. Event dispatch does not await subscribers; do not flash complete-save
+  success before workspace persistence completes.
+- Save can later offer a bounded AST import preview for panel editing. It is
+  not proof that arbitrary JavaScript is builder-compatible. Preserve
+  code-owned fields and never trigger a destructive conversion merely because
+  source was saved.
+
+Acceptance criteria: one successful save produces one event containing the
+exact persisted source; a failed storage write produces no saved event and
+visible failure feedback. Another runner's save is ignored by GameBuilder.
+Editing after a save marks source dirty; returning to saved text clears that
+source flag without falsely clearing pending panel changes. Reload restores
+the saved snapshot without regeneration, and a late subscriber can query it.
+An integrated workspace-save failure never shows complete-workspace success.
 
 ### Gamify is a useful compatibility target, not just a simple fixture
 
@@ -163,6 +215,9 @@ would lose behavior. Do not promise arbitrary JavaScript round trips.
 - Retain the existing runner's Save Code behavior for ordinary lesson pages.
   Add an explicit opt-in save integration for GameBuilder so its Save action
   also saves the workspace, with truthful success/error feedback.
+- Implement the runner save-state contract above and consume it through
+  `runner-bridge.mjs`; keep source saved/dirty, workspace saved/dirty, and
+  generated-code synchronization as distinct states.
 - Offer recovery of legacy saved runner text as a code-owned draft. Do not
   claim to reconstruct panel state from it.
 - Define dirty/conflict prompts for New/Open, level switching, generation,
@@ -236,6 +291,8 @@ accessible. Existing `/gamify` links and needed legacy imports still resolve.
 - Pilot panel import on supported fields in Star Wars, retaining Projectiles,
   callbacks, and nonrepresentable positions in code mode until preservation
   is demonstrated. Do not label the entire level fully panel-editable.
+- Use saved-source notifications to offer import of that exact snapshot, not
+  to infer compatibility or automatically rewrite the panel configuration.
 - Consider browser asset upload as a distinct follow-up: use persistent binary
   storage, not temporary object URLs or unbounded localStorage strings, and
   export the actual files. Do not advertise upload as saving to the repository.
@@ -296,6 +353,7 @@ the feature milestone with explicit behavior checks.
 | Requirement | Milestones | Completion evidence |
 |---|---|---|
 | Load, edit, save complete games | P1, P2 | Exact panel/source restoration and multi-module saves |
+| Emit and expose successful runner save state | P1, P4 | Exact saved-source event, queryable snapshot, failure and import safeguards |
 | Preserve handwritten code and existing behavior | P1-P5 | Code-owned mode, source preservation, migration comparisons |
 | Bring Gamify and GameBuilder together | P3 | One registered system, bundled reference game, retained links |
 | Move assets into builder-compatible ownership | P3, P4 | Audited path map, stable metadata, resolving asset references |
