@@ -39,30 +39,33 @@ export function generateLevelCode(state, catalog) {
     .join('\n');
   const className = 'GameLevelBuilder';
   const playerId = state.player.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
-  const npcClasses = state.npcs.map((npc) => {
+  const npcDefinitions = state.npcs.map((npc, index) => {
     const npcSprite = catalog.sprites.get(npc.spriteKey);
     const npcId = `${npc.id}_${npc.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
     const npcDown = directionData(npcSprite).down;
-    return `      {
-        class: Npc,
-        data: {
-          id: ${quote(npcId)},
-          greeting: ${quote(npc.greeting.trim() || 'Hello, traveler!')},
-          src: path + ${quote(npcSprite.src)},
-          SCALE_FACTOR: ${npcSprite.scaleFactor},
-          ANIMATION_FPS: 8,
-          INIT_POSITION: { x: ${npc.position.x}, y: ${npc.position.y} },
-          orientation: { rows: ${npcSprite.rows}, columns: ${npcSprite.cols} },
-          down: ${npcDown},
-          hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 }
-        }
-      }`;
+    return `    const npcData${index + 1} = {
+      id: ${quote(npcId)},
+      greeting: ${quote(npc.greeting.trim() || 'Hello, traveler!')},
+      src: path + ${quote(npcSprite.src)},
+      SCALE_FACTOR: ${npcSprite.scaleFactor},
+      ANIMATION_FPS: 8,
+      INIT_POSITION: { x: ${npc.position.x}, y: ${npc.position.y} },
+      orientation: { rows: ${npcSprite.rows}, columns: ${npcSprite.cols} },
+      down: ${npcDown},
+      hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 }
+    };`;
   });
 
   const npcImport = state.npcs.length > 0
     ? "import Npc from '/assets/js/GameEnginev1.1/essentials/Npc.js';\n"
     : '';
-  const npcEntries = npcClasses.length > 0 ? `,\n${npcClasses.join(',\n')}` : '';
+  const npcDefinitionsCode = npcDefinitions.length > 0
+    ? `\n${npcDefinitions.join('\n')}\n`
+    : '';
+  const npcEntries = state.npcs
+    .map((_, index) => `      { class: Npc, data: npcData${index + 1} }`)
+    .join(',\n');
+  const npcClassesCode = npcEntries ? `,\n${npcEntries}` : '';
   const code = `import GameControl from '/assets/js/GameEnginev1.1/essentials/GameControl.js';
 import GameEnvBackground from '/assets/js/GameEnginev1.1/essentials/GameEnvBackground.js';
 import Player from '/assets/js/GameEnginev1.1/essentials/Player.js';
@@ -88,10 +91,11 @@ class ${className} {
 ${directions}
       hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 }
     };
+${npcDefinitionsCode}
 
     this.classes = [
       { class: GameEnvBackground, data: backgroundData },
-      { class: Player, data: playerData }${npcEntries}
+      { class: Player, data: playerData }${npcClassesCode}
     ];
   }
 }

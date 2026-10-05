@@ -67,8 +67,13 @@ test('generates any number of NPCs as GAME_RUNNER Npc objects', () => {
   assert.match(result.code, /import Npc from '\/assets\/js\/GameEnginev1\.1\/essentials\/Npc\.js';/);
   assert.match(result.code, /id: "npc-1_guide"/);
   assert.match(result.code, /greeting: "Welcome, hero's friend!"/);
+  assert.match(result.code, /const npcData1 = \{/);
+  assert.match(result.code, /const npcData2 = \{/);
   assert.match(result.code, /id: "npc-2_merchant"/);
   assert.match(result.code, /INIT_POSITION: \{ x: 0\.8, y: 0\.6 \}/);
+  assert.match(result.code, /\{ class: Npc, data: npcData1 \}/);
+  assert.match(result.code, /\{ class: Npc, data: npcData2 \}/);
+  assert.doesNotMatch(result.code, /class: Npc,\s+data: \{/);
 });
 
 test('rejects malformed sprite manifests instead of generating incomplete code', () => {
