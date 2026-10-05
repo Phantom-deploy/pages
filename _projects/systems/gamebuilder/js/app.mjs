@@ -368,13 +368,7 @@ try {
   }
 
   persistence = createWorkspacePersistence({
-    root, runner, capture: captureWorkspace, restore: restoreWorkspace,
-    createNew: () => ({
-      schemaVersion: 1, kind: 'ocs-gamebuilder-workspace',
-      builderState: createDefaultBuilderState(firstBackground, defaultSprite),
-      editorCode: '', lastGeneratedCode: '', engineVersion: 'GameEnginev1.1', collapsed: false,
-      editing: { activeBarrierId: null, barrierEditSnapshot: null, nextNpcIndex: 0, nextBarrierIndex: 0 }
-    })
+    root, runner, capture: captureWorkspace, restore: restoreWorkspace
   });
   collapseButton.addEventListener('click', persistence.changed);
 
@@ -513,7 +507,7 @@ try {
     if (runner.getCode().trim()) {
       setStatus('Existing GAME_RUNNER code was preserved. Choose Generate / Sync Code when ready to replace it.');
     } else {
-      generateButton.click();
+      setStatus('Configure the builder, then choose Generate / Sync Code to send it to GAME_RUNNER.');
     }
   }
 } catch (error) {

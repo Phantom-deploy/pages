@@ -80,6 +80,18 @@ debounced by 200 ms and flushed on page hide/navigation. Reload restores the
 draft without regenerating code. Save Workspace keeps a separate explicit
 return point; Load Saved Workspace restores it after confirmation.
 
+Workspace file actions now extend GAME_RUNNER's existing editor toolbar with
+compact, accessible icon controls. The existing Save icon saves the workspace;
+folder/download/upload/code icons provide load and exports/import. Clear
+restores the runner's construction-default code (empty for this workspace)
+without resetting the builder panels or deleting the explicit save. There is
+no separate page-level save toolbar or New Workspace button.
+
+Fresh startup no longer automatically generates the default background/Player
+into the runner. The panel keeps its starter selections, while the code stays
+empty until Generate / Sync Code is explicitly clicked. Recovery continues to
+restore exact source, including an intentionally empty editor.
+
 Export/import workspace JSON and exact JavaScript export are implemented.
 Runner Save Code also saves this workspace through an awaited opt-in hook.
 Storage failures/conflicts are visible and stop automatic writes; invalid

@@ -51,15 +51,23 @@ blank form fields. Reload restores that draft without generating over manual
 code. A 200 ms debounce limits writes; page-hide/navigation also flush pending
 changes. Browser crashes before a pending write can still lose the latest edit.
 
-- **Save Workspace** keeps one explicit return point, separate from the draft.
-- **Load Saved Workspace** returns to that save after replacement confirmation.
-- The runner's **Save Code** button also saves the workspace on this page.
+- The runner's existing **Save** icon saves the workspace on this page and
+  keeps one explicit return point, separate from the recovery draft.
   Other runner pages retain their normal source-only save behavior.
+- **Load Saved Workspace** is a folder icon in the same runner toolbar and
+  returns to that save after replacement confirmation.
 - **Export Workspace JSON / Import Workspace JSON** transfer the complete
   single-level workspace. Import validates shape/version and confirms replacement.
 - **Export Code** downloads the exact current JavaScript independently.
-- **New Workspace** replaces the open workspace/draft after confirmation, but
-  keeps the last explicit save.
+- **Clear** retains the runner's construction-default reset: on this page it
+  clears the code after confirmation, without resetting the builder panels or
+  deleting the explicit workspace save.
+
+All file actions live in the runner's existing editor toolbar as labeled icon
+buttons; there is no separate workspace button strip. Fresh startup leaves
+runner code empty until **Generate / Sync Code** is clicked. Restored drafts or
+saved runner code are preserved. Code-to-panel import remains a future feature:
+saving source does not automatically rewrite panel settings.
 
 Saves are local to this browser, origin, and page path: they are not account
 backups, runtime progress saves, multiple named projects, or multi-module game

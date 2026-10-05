@@ -17,10 +17,13 @@ function download(text, filename, type) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function createWorkspacePersistence({ root, runner, capture, restore, createNew }) {
+export function createWorkspacePersistence({ root, runner, capture, restore }) {
   const status = root.querySelector('[data-role="save-status"]');
   const buttons = [...root.querySelectorAll('[data-workspace-action]')];
   const fileInput = root.querySelector('[data-role="workspace-file"]');
+  const saveButton = root.querySelector('[data-hook="save"]');
+  saveButton.title = 'Save workspace (panels and code)';
+  saveButton.setAttribute('aria-label', 'Save Workspace');
   let store;
   let paused = false;
   let applying = false;
@@ -139,9 +142,6 @@ export function createWorkspacePersistence({ root, runner, capture, restore, cre
     button.addEventListener('click', async () => {
       try {
         switch (button.dataset.workspaceAction) {
-          case 'save':
-            await runner.save();
-            break;
           case 'load': {
             const saved = read('saved');
             if (!saved) {
@@ -156,14 +156,6 @@ export function createWorkspacePersistence({ root, runner, capture, restore, cre
             flush();
             break;
           }
-          case 'new':
-            if (!confirmReplace()) return;
-            if (!store) throw new Error('Browser storage is unavailable; export your work before starting over');
-            allowExplicitRecovery();
-            apply(createNew());
-            lastDraft = '';
-            flush();
-            break;
           case 'export':
             download(JSON.stringify(JSON.parse(serializeWorkspace(capture())), null, 2),
               'gamebuilder-workspace.json', 'application/json');

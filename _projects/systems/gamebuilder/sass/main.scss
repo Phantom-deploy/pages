@@ -138,23 +138,15 @@
   min-width: 0;
 }
 
-/// Workspace persistence controls
+/// Runner workspace recovery feedback
 ///
-/// Purpose: Keep student save/recovery actions and storage feedback visible.
-/// Reuse: Uses shared OCS buttons; scoped to the GameBuilder workspace.
-/// Usage: Wraps on narrow screens; save status occupies a separate full row.
+/// Purpose: Keep recovery feedback near the runner's existing file toolbar.
+/// Reuse: Actions use shared utility/icon button grammar, not a second toolbar.
+/// Usage: Status sits below the editor; no new page-level controls are needed.
 /// @group gamebuilder-persistence
-.ocs__gamebuilder-save-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-
-  .ocs__gamebuilder-status {
-    flex-basis: 100%;
-    margin: 0.25rem 0 0;
-  }
+.ocs__gamebuilder-save-status {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
 }
 
 /// Semantic builder form and feature groups
