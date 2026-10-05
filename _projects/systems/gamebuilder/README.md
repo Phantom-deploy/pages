@@ -9,6 +9,14 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
 
 - `index.md` is the runner-backed v2 workbench entry point.
 - `docs/BuilderWorkbenchV1.md` retains the original v1 builder page.
+- `navigation/gamebuilder-docs.md` publishes the blog catalog at
+  `/gamebuilder/docs/`, linked by the CS Pathway gaming menu. It uses the shared
+  `blogs` layout with `post_filter: game_docs` to list only posts whose front
+  matter contains the boolean `game_docs: true`. Add that flag to the first
+  front-matter cell of a lesson notebook (or a documentation Markdown source)
+  to include it. Hidden posts remain excluded; sticky rank and newest-first
+  ordering follow the existing blog conventions. The catalog is itself hidden
+  from blog listings and does not carry the `game_docs` flag.
 - `notebooks/` owns the variables homework, backgrounds lesson, and characters
   lesson. The characters lesson teaches Player and NPC data, instantiation,
   inheritance, and animation through two editable GAME_RUNNER examples.
@@ -105,6 +113,12 @@ Run the focused checks first when changing GameBuilder logic:
 ```sh
 node --test _projects/systems/gamebuilder/tests/*.test.mjs
 for file in _projects/systems/gamebuilder/js/*.mjs; do node --check "$file"; done
+```
+
+For the shared blog catalog's filtering and card behavior, run:
+
+```sh
+bundle exec ruby scripts/test_blog_catalog.rb
 ```
 
 Build only this system's page, JavaScript, Sass, and images with:
