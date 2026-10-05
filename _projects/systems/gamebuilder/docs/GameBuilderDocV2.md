@@ -43,7 +43,7 @@ GameBuilder v2 page
 ├── Live status message
 └── Responsive workbench
     ├── Left: Level setup (.ocs__card)
-    │   ├── Generate / Sync Code
+    │   ├── Clear / Pull / Push
     │   ├── Game name
     │   ├── Environment fieldset: background selection
     │   ├── Player fieldset: name, sprite, normalized X/Y position
@@ -89,7 +89,7 @@ no separate page-level save toolbar or New Workspace button.
 
 Fresh startup no longer automatically generates the default background/Player
 into the runner. The panel keeps its starter selections, while the code stays
-empty until Generate / Sync Code is explicitly clicked. Recovery continues to
+empty until Push is explicitly clicked. Recovery continues to
 restore exact source, including an intentionally empty editor.
 
 Export/import workspace JSON and exact JavaScript export are implemented.
@@ -100,9 +100,27 @@ saves local to the browser/origin/page, not named game libraries or account
 backups. Export remains important: clearing browser data removes local saves,
 and a crash before a pending draft write can lose the latest edit.
 
+### Panel actions and safe Pull (implemented)
+
+Clear Builder, Pull left and Push right are compact outlined icons. Clear
+Builder resets panels only; runner Clear resets source only. Both confirm
+replacement and preserve the explicit workspace save.
+
+Pull uses the shared, checked-in Acorn browser asset at runtime (no npm build
+step), never executing source, to read supported literal data
+from one GameBuilder-style level: catalog background/sprites, Player, NPCs and
+splines. Source stays untouched. Generated IDs reconstruct character names;
+the original display capitalization is not recoverable. Unsupported shapes
+fail without replacing settings. Custom behavior can remain code-owned:
+Push is blocked unless the whole module is representable by the generator.
+
+Routine operation feedback appears briefly near the controls. Errors remain
+visible; automatic recovery writes do not repeatedly show notices. Existing
+runner controls use the same outlined SVG treatment on this page only.
+
 ### Still not implemented
 
-AST-based code-to-panel import, multi-module game loading/saving, named
+General legacy code import, multi-module game loading/saving, named
 workspace libraries, Gamify relocation, and direct writing into VS Code remain
 future work. NPC, spline barriers, and single-level workspace persistence are
 implemented.
@@ -350,7 +368,7 @@ must delegate to `BaseRunner.setValue()` so editor content and the code read by
 Do not silently replace manually edited code when a builder field changes:
 
 - Changes to builder settings mark generated code as out of date.
-- An explicit **Generate / Sync Code** action validates the configuration and
+- An explicit **Push** action validates the configuration and
   updates the GAME_RUNNER editor.
 - If the editor contains unsaved manual edits, confirm before replacing them.
 - Running the game always runs the current GAME_RUNNER editor contents. This

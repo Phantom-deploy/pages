@@ -65,9 +65,24 @@ changes. Browser crashes before a pending write can still lose the latest edit.
 
 All file actions live in the runner's existing editor toolbar as labeled icon
 buttons; there is no separate workspace button strip. Fresh startup leaves
-runner code empty until **Generate / Sync Code** is clicked. Restored drafts or
-saved runner code are preserved. Code-to-panel import remains a future feature:
-saving source does not automatically rewrite panel settings.
+runner code empty until **Push →** is clicked. Restored drafts or saved runner
+code are preserved. Panel controls are outlined icons:
+
+- **Clear Builder** resets the panels to starter settings after confirmation,
+  keeping runner code and the saved workspace.
+- **Pull ←** reads supported settings from the current runner JavaScript after
+  confirmation, leaving that source untouched. The first importer supports one
+  GameBuilder-style level, catalog assets, a Player, NPCs and spline barriers.
+  It parses syntax with Acorn; it never executes code to inspect it. Player/NPC
+  names are reconstructed from their generated IDs, not original capitalization.
+- **Push →** validates panels and generates runner code. Modules with custom
+  behavior, methods, imports or engine settings the panels cannot preserve
+  remain code-owned: Push is blocked. Export the source before explicitly
+  clearing the runner if you intend to replace it. Saving does not implicitly Pull.
+
+Routine operation messages appear briefly near the controls, without occupying
+layout space. Errors remain visible. Automatic draft writes are deliberately
+quiet rather than showing a message on every keystroke.
 
 Saves are local to this browser, origin, and page path: they are not account
 backups, runtime progress saves, multiple named projects, or multi-module game
@@ -88,9 +103,7 @@ the Save button shows success.
 Run the focused checks first when changing GameBuilder logic:
 
 ```sh
-node --test _projects/systems/gamebuilder/tests/gamebuilder-contract.test.mjs
-node --test _projects/systems/gamebuilder/tests/lesson-contract.test.mjs
-node --test _projects/systems/gamebuilder/tests/workspace-contract.test.mjs
+node --test _projects/systems/gamebuilder/tests/*.test.mjs
 for file in _projects/systems/gamebuilder/js/*.mjs; do node --check "$file"; done
 ```
 
@@ -108,6 +121,12 @@ one-time, full Jekyll build without starting the server, use:
 ```sh
 make build-current
 ```
+
+The project Makefile is generated from the shared registration template, with
+no GameBuilder-specific build override or npm installation. Pull uses the
+checked-in shared [Acorn browser module](../../../assets/js/vendor/acorn.mjs)
+at runtime; see its [vendor documentation](../../../assets/js/vendor/README.md)
+for version, license and maintenance. The parser is not generated during make.
 
 `build-current` performs the full ordered site build: clean, registered project
 builds (including dynamic Sass import generation), conversions, course

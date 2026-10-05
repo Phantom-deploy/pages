@@ -7,6 +7,7 @@
  * Errors remain visible and block automatic overwrites until explicit recovery.
  */
 import { createWorkspaceStore, parseWorkspace, serializeWorkspace } from './workspace-store.mjs';
+import { createActionFeedback } from './action-feedback.mjs';
 
 function download(text, filename, type) {
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -19,6 +20,9 @@ function download(text, filename, type) {
 
 export function createWorkspacePersistence({ root, runner, capture, restore }) {
   const status = root.querySelector('[data-role="save-status"]');
+  const report = createActionFeedback(status);
+  const runnerContainer = status.closest('.game-runner-container');
+  runnerContainer.querySelector('.editor-container > .control-panel:last-child').append(status);
   const buttons = [...root.querySelectorAll('[data-workspace-action]')];
   const fileInput = root.querySelector('[data-role="workspace-file"]');
   const saveButton = root.querySelector('[data-hook="save"]');
@@ -31,11 +35,6 @@ export function createWorkspacePersistence({ root, runner, capture, restore }) {
   let lastDraft = '';
   let lastSaved = '';
   let initial = '';
-
-  function report(message, state = 'info') {
-    status.textContent = message;
-    status.dataset.state = state;
-  }
 
   function reportError(error) {
     paused = true;
@@ -63,9 +62,6 @@ export function createWorkspacePersistence({ root, runner, capture, restore }) {
         store.write('draft', document);
         lastDraft = text;
       }
-      report(text === lastSaved
-        ? 'Workspace saved in this browser.'
-        : 'Recovery draft kept in this browser. Save Workspace keeps a return point.', 'success');
       return true;
     } catch (error) {
       reportError(error);
@@ -75,7 +71,6 @@ export function createWorkspacePersistence({ root, runner, capture, restore }) {
 
   function changed() {
     if (applying || paused) return;
-    report('Changes not yet backed up...', 'info');
     window.clearTimeout(timer);
     timer = window.setTimeout(flush, 200);
   }
@@ -153,15 +148,17 @@ export function createWorkspacePersistence({ root, runner, capture, restore }) {
             apply(saved.document);
             lastSaved = serializeWorkspace(saved.document);
             lastDraft = '';
-            flush();
+            if (flush()) report('Saved workspace loaded.', 'success');
             break;
           }
           case 'export':
             download(JSON.stringify(JSON.parse(serializeWorkspace(capture())), null, 2),
               'gamebuilder-workspace.json', 'application/json');
+            report('Workspace JSON exported.', 'success');
             break;
           case 'export-code':
             download(runner.getCode(), 'GameLevelBuilder.js', 'text/javascript');
+            report('Current code exported.', 'success');
             break;
           case 'import':
             fileInput.click();
@@ -184,6 +181,7 @@ export function createWorkspacePersistence({ root, runner, capture, restore }) {
       apply(document);
       lastDraft = '';
       if (!store || !flush()) report('JSON imported, but browser recovery is unavailable. Export to keep your changes.', 'error');
+      else report('Workspace JSON imported.', 'success');
     } catch (error) {
       console.error('GameBuilder workspace import failed:', error);
       report(`Import failed: ${error.message}. The open workspace was not replaced.`, 'error');
