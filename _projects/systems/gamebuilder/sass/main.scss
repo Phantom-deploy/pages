@@ -248,8 +248,8 @@
 
 /// Point-placed spline barrier controls and preview marks
 ///
-/// Purpose: Style the repeatable barrier list, visibility controls,
-/// coordinate-entry fallback, and point-capture overlay on the shared preview.
+/// Purpose: Keep point-placement, stack undo, finish, and visibility controls
+/// inside each barrier card, with a point-capture overlay on the preview.
 /// Reuse: These selectors are scoped to GameBuilder; generated barriers use
 /// the shared GameEngine class and do not depend on editor styles.
 /// Usage: `app.mjs` toggles the overlay's `is-active` state while a barrier is
@@ -262,8 +262,7 @@
 }
 
 .ocs__gamebuilder-barrier-empty,
-.ocs__gamebuilder-barrier > p,
-.ocs__gamebuilder-barrier-tools > p {
+.ocs__gamebuilder-barrier > p {
   margin: 0;
   color: var(--pref-muted-text-color, var(--pref-text-color));
   font-size: 0.85rem;
@@ -293,28 +292,10 @@
   overflow-wrap: anywhere;
 }
 
-.ocs__gamebuilder-barrier-card-actions,
-.ocs__gamebuilder-barrier-actions {
+.ocs__gamebuilder-barrier-card-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-}
-
-.ocs__gamebuilder-barrier-point-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.6rem;
-}
-
-.ocs__gamebuilder-barrier-tools {
-  display: grid;
-  gap: 0.6rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid var(--ui-border);
-}
-
-.ocs__gamebuilder-barrier-tools[hidden] {
-  display: none;
 }
 
 .ocs__gamebuilder-form .ocs__input {

@@ -17,8 +17,11 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
   and canvas-relative position; generated levels create one `Npc` object per
   configured NPC.
 - The workbench supports multiple open spline barriers. Click the shared runner
-  preview to add normalized control points, or enter X/Y values and add a point
-  with the keyboard. Each barrier card lists the full control-point sequence,
+  preview to add normalized control points; no coordinate inputs are needed.
+  Add point brings the preview into view, Undo point removes the last point
+  added, and Finish barrier completes the curve once it has at least two points.
+  These controls stay inside the active barrier card; Edit reopens them.
+  Each barrier card lists the full control-point sequence,
   which also remains visible in the preview. Cards can hide or show a barrier;
   hidden barriers are invisible but retain their player collision behavior.
   Generated levels create independent `SplineBarrier` objects from the shared

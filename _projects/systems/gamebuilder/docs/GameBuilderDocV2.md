@@ -245,11 +245,17 @@ This is the current v2 document shape. The background is selected by its
 manifest-derived key; player and NPC positions are normalized from 0 to 1.
 Each barrier is an open spline with at least two normalized control points.
 During authoring, click the GAME_RUNNER preview to add points, or use the
-normalized X/Y fields as a keyboard-accessible alternative. Finish the active
-barrier before generating code; the editor also supports continuing an
-existing barrier, undoing the last point, canceling edits, and removing a
-barrier. Each barrier can be hidden or shown from its card. Hidden barriers are
-not drawn in the editor or runtime, but remain collision obstacles. Curves are
+**Add point** button to bring the preview into view before clicking a position.
+There are no coordinate-editing inputs or separate placement panel. **Add
+point**, **Undo point**, **Finish barrier**, and **Cancel** live inside the active
+barrier card. Undo works as a stack: each press removes the most recently added
+point. Finish requires at least two points. **Edit** reopens the same controls
+for a completed barrier; Cancel restores its points from before editing.
+Finish the active barrier before generating code. Each completed barrier can
+be hidden, shown, or removed from its card. Hidden barriers are
+not drawn in the editor or runtime, but remain collision obstacles. Editing a
+hidden barrier temporarily displays its curve and markers without changing its
+saved visibility. Curves are
 smoothed with Catmull–Rom interpolation by the shared GameEngine class.
 Control-point markers are shown while a barrier is being edited, and each card
 lists every point's X/Y coordinates. The runtime renderer uses the OCS accent

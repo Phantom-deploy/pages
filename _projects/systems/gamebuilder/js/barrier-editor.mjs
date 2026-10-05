@@ -51,7 +51,7 @@ export function createBarrierPlacementEditor(container, onPointAdded) {
     overlay.classList.toggle('is-active', Boolean(activeId));
 
     for (const barrier of barriers) {
-      if (barrier.visible === false) continue;
+      if (barrier.visible === false && barrier.id !== activeId) continue;
       if (!Array.isArray(barrier.points) || barrier.points.length === 0) continue;
 
       const path = document.createElementNS(SVG_NAMESPACE, 'path');
