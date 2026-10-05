@@ -70,6 +70,7 @@
 
 <script type="module">
 import { BaseRunner, GameExecutor } from '{{ site.baseurl }}/assets/js/pages/runners/index.js';
+import { createGameRunnerController } from '{{ site.baseurl }}/assets/js/pages/runners/core/GameRunnerController.js';
 
 (function() {
   const container = document.getElementById('game-runner-{{ include.runner_id }}');
@@ -147,8 +148,16 @@ import { BaseRunner, GameExecutor } from '{{ site.baseurl }}/assets/js/pages/run
     runner.updateStatus(status);
   }
 
+  const runnerId = '{{ include.runner_id }}';
+  const controller = createGameRunnerController({
+    runner, runnerId, container, engineSelect: engineVersionSelect,
+    run: runGame, stop: stopGame
+  });
+
   runner.bindEditorButtons({
     resetValue: defaultCode || "",
+    saveAction: () => controller.save(),
+    canClear: () => controller.confirmClear(),
     onClear: () => {
       stopGame();
       updateStatus('Reset');
@@ -197,18 +206,6 @@ import { BaseRunner, GameExecutor } from '{{ site.baseurl }}/assets/js/pages/run
   // Keyboard shortcuts (only if editor exists)
   runner.bindShortcut(runGame);
 
-  const runnerId = '{{ include.runner_id }}';
-  const controller = Object.freeze({
-    setCode(code) {
-      if (typeof code !== 'string') {
-        throw new TypeError('Game runner code must be a string');
-      }
-      runner.setValue(code);
-    },
-    getCode: () => runner.getValue(),
-    run: runGame,
-    stop: stopGame
-  });
   window.OCSGameRunners = window.OCSGameRunners || Object.create(null);
   window.OCSGameRunners[runnerId] = controller;
   window.dispatchEvent(new CustomEvent('ocs:game-runner-ready', {

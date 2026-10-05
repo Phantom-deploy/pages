@@ -43,6 +43,38 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
 Edit these sources under `_projects/systems/gamebuilder/`. The page, JavaScript,
 Sass, and images copied into the site directories are generated output.
 
+## Protecting workspace work
+
+The v2 workspace now keeps an automatic browser-local recovery draft of the
+panel settings and exact editor code, including unfinished barrier edits and
+blank form fields. Reload restores that draft without generating over manual
+code. A 200 ms debounce limits writes; page-hide/navigation also flush pending
+changes. Browser crashes before a pending write can still lose the latest edit.
+
+- **Save Workspace** keeps one explicit return point, separate from the draft.
+- **Load Saved Workspace** returns to that save after replacement confirmation.
+- The runner's **Save Code** button also saves the workspace on this page.
+  Other runner pages retain their normal source-only save behavior.
+- **Export Workspace JSON / Import Workspace JSON** transfer the complete
+  single-level workspace. Import validates shape/version and confirms replacement.
+- **Export Code** downloads the exact current JavaScript independently.
+- **New Workspace** replaces the open workspace/draft after confirmation, but
+  keeps the last explicit save.
+
+Saves are local to this browser, origin, and page path: they are not account
+backups, runtime progress saves, multiple named projects, or multi-module game
+packages yet. Export JSON regularly, particularly before clearing browser data
+or changing devices. Missing assets are preserved as unavailable selections;
+choose replacements before generation. Invalid files do not replace open work.
+Storage failures and cross-tab conflicts stop recovery writes, show an error,
+and retain the last valid stored draft. Export open work before resolving them.
+
+`js/workspace-store.mjs` owns versioned validation and storage.
+`js/workspace-persistence.mjs` owns controls and recovery wiring. The shared
+runner controller emits `ocs:runner-saved` after a successful source write,
+exposes its saved snapshot, and awaits GameBuilder's workspace-save hook before
+the Save button shows success.
+
 ## Build and development
 
 Run the focused checks first when changing GameBuilder logic:
@@ -50,6 +82,7 @@ Run the focused checks first when changing GameBuilder logic:
 ```sh
 node --test _projects/systems/gamebuilder/tests/gamebuilder-contract.test.mjs
 node --test _projects/systems/gamebuilder/tests/lesson-contract.test.mjs
+node --test _projects/systems/gamebuilder/tests/workspace-contract.test.mjs
 for file in _projects/systems/gamebuilder/js/*.mjs; do node --check "$file"; done
 ```
 
