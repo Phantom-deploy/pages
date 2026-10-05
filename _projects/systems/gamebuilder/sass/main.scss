@@ -145,6 +145,60 @@
   line-height: 1.4;
 }
 
+.ocs__gamebuilder-npc-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ocs__gamebuilder-add-npc {
+  justify-self: start;
+}
+
+.ocs__gamebuilder-npc-empty {
+  margin: 0;
+  color: var(--pref-text-color);
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.ocs__gamebuilder-npc {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--ui-border);
+  border-radius: 0.5rem;
+  background: var(--panel);
+}
+
+.ocs__gamebuilder-npc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ocs__gamebuilder-npc-header h3 {
+  margin: 0;
+  color: var(--pref-text-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.ocs__gamebuilder-npc-header .ocs__btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.ocs__gamebuilder-npc-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.75rem;
+}
+
+.ocs__gamebuilder-npc-fields label:last-child {
+  grid-column: 1 / -1;
+}
+
 .ocs__gamebuilder-form .ocs__input {
   width: 100%;
 }

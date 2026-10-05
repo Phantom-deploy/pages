@@ -39,10 +39,34 @@ export function generateLevelCode(state, catalog) {
     .join('\n');
   const className = 'GameLevelBuilder';
   const playerId = state.player.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  const npcClasses = state.npcs.map((npc) => {
+    const npcSprite = catalog.sprites.get(npc.spriteKey);
+    const npcId = `${npc.id}_${npc.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+    const npcDown = directionData(npcSprite).down;
+    return `      {
+        class: Npc,
+        data: {
+          id: ${quote(npcId)},
+          greeting: ${quote(npc.greeting.trim() || 'Hello, traveler!')},
+          src: path + ${quote(npcSprite.src)},
+          SCALE_FACTOR: ${npcSprite.scaleFactor},
+          ANIMATION_FPS: 8,
+          INIT_POSITION: { x: ${npc.position.x}, y: ${npc.position.y} },
+          orientation: { rows: ${npcSprite.rows}, columns: ${npcSprite.cols} },
+          down: ${npcDown},
+          hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 }
+        }
+      }`;
+  });
 
+  const npcImport = state.npcs.length > 0
+    ? "import Npc from '/assets/js/GameEnginev1.1/essentials/Npc.js';\n"
+    : '';
+  const npcEntries = npcClasses.length > 0 ? `,\n${npcClasses.join(',\n')}` : '';
   const code = `import GameControl from '/assets/js/GameEnginev1.1/essentials/GameControl.js';
 import GameEnvBackground from '/assets/js/GameEnginev1.1/essentials/GameEnvBackground.js';
 import Player from '/assets/js/GameEnginev1.1/essentials/Player.js';
+${npcImport}
 
 class ${className} {
   static displayName = ${quote(state.name.trim())};
@@ -67,7 +91,7 @@ ${directions}
 
     this.classes = [
       { class: GameEnvBackground, data: backgroundData },
-      { class: Player, data: playerData }
+      { class: Player, data: playerData }${npcEntries}
     ];
   }
 }

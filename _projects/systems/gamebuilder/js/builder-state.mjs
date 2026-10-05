@@ -11,6 +11,24 @@ export function createDefaultBuilderState(backgroundKey, spriteKey) {
       name: 'Player',
       spriteKey,
       position: { x: 0.5, y: 0.8 }
+    },
+    npcs: []
+  };
+}
+
+export function createNpcState(index, spriteKey) {
+  if (!Number.isInteger(index) || index < 0 || !spriteKey) {
+    throw new TypeError('An NPC index and sprite are required');
+  }
+
+  return {
+    id: `npc-${index + 1}`,
+    name: `NPC ${index + 1}`,
+    spriteKey,
+    greeting: 'Hello, traveler!',
+    position: {
+      x: 0.15 + (index % 4) * 0.2,
+      y: Math.min(0.65 + Math.floor(index / 4) * 0.15, 0.95)
     }
   };
 }
@@ -44,6 +62,40 @@ export function validateBuilderState(state, catalog) {
       });
     }
   }
+
+  if (!Array.isArray(state.npcs)) {
+    errors.push({ field: 'npcs', message: 'NPC settings must be a list.' });
+    return errors;
+  }
+
+  const npcIds = new Set();
+  state.npcs.forEach((npc, index) => {
+    const field = `npcs.${index}`;
+    if (!npc || typeof npc.id !== 'string' || !npc.id.trim() || npcIds.has(npc.id)) {
+      errors.push({ field: `${field}.id`, message: `NPC ${index + 1} must have a unique identifier.` });
+    } else {
+      npcIds.add(npc.id);
+    }
+    if (typeof npc?.name !== 'string' || !npc.name.trim()) {
+      errors.push({ field: `${field}.name`, message: `Enter a name for NPC ${index + 1}.` });
+    }
+    if (typeof npc?.greeting !== 'string') {
+      errors.push({ field: `${field}.greeting`, message: `Enter a valid greeting for NPC ${index + 1}.` });
+    }
+    if (!catalog.sprites.has(npc?.spriteKey)) {
+      errors.push({ field: `${field}.spriteKey`, message: `Choose an available sprite for NPC ${index + 1}.` });
+    }
+
+    for (const axis of ['x', 'y']) {
+      const value = npc?.position?.[axis];
+      if (!Number.isFinite(value) || value < 0 || value > 1) {
+        errors.push({
+          field: `${field}.position.${axis}`,
+          message: `NPC ${index + 1} ${axis.toUpperCase()} position must be between 0 and 1.`
+        });
+      }
+    }
+  });
 
   return errors;
 }

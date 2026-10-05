@@ -59,6 +59,12 @@ permalink: /gamebuilder/v2/
             <input class="ocs__input" name="player-y" type="number" min="0" max="1" step="0.01" required value="0.8">
           </label>
         </fieldset>
+        <fieldset class="ocs__gamebuilder-npcs" data-role="npcs-fieldset">
+          <legend>NPCs</legend>
+          <button class="ocs__btn ocs__gamebuilder-add-npc" type="button" data-action="add-npc">Add NPC</button>
+          <p class="ocs__gamebuilder-npc-empty" data-role="npc-empty">No NPCs added yet.</p>
+          <div class="ocs__gamebuilder-npc-list" data-role="npc-list"></div>
+        </fieldset>
         <p class="ocs__gamebuilder-form-help">Positions are proportions of the runner canvas. Movement uses WASD.</p>
       </form>
     </section>

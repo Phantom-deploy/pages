@@ -13,6 +13,9 @@ registered project. The project build distributes `index.md` as the
 - `sass/main.scss` is the system's page-scoped stylesheet entry point.
 - `images/bg/` and `images/sprites/` contain the starter assets and manifests
   used by the workbench.
+- The workbench supports zero or more NPCs, each with its own sprite, greeting,
+  and canvas-relative position; generated levels create one `Npc` object per
+  configured NPC.
 - `docs/` retains the existing asset guidance, workbench page, and GameBuilder
   v2 proposal.
 - `images/` is reserved for GameBuilder system-owned images. Game/project art
