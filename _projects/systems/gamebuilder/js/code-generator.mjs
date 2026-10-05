@@ -1,3 +1,22 @@
+/**
+ * @module code-generator
+ * @description
+ * Converts a GameBuilder document into a JavaScript level module accepted by
+ * the shared GAME_RUNNER and GameEngine. Definitions for the background,
+ * player, and each NPC are emitted separately from the `this.classes` list.
+ *
+ * @data
+ * Inputs are a schema-versioned builder document and the catalog produced by
+ * `asset-catalog.mjs`. Successful output contains `GameControl` and
+ * `gameLevelClasses` exports, engine imports, resolved asset URLs, and one
+ * `Npc` data object for each configured NPC. Invalid input returns structured
+ * validation errors without generated code.
+ *
+ * @usage
+ * Call `generateLevelCode(state, catalog)` after reading the form. If
+ * `errors` is empty, pass `code` to GAME_RUNNER's page-scoped `setCode`
+ * controller method; otherwise present the returned messages to the user.
+ */
 import { validateBuilderState } from './builder-state.mjs';
 
 const quote = (value) => JSON.stringify(value);

@@ -1,3 +1,21 @@
+/**
+ * @module builder-state
+ * @description
+ * Creates and validates the structured document edited by the GameBuilder
+ * panel. This module contains no DOM or runner logic.
+ *
+ * @data
+ * Schema version 1 stores the game `name`, a manifest-backed `backgroundKey`,
+ * one `player`, and zero or more `npcs`. Player and NPC positions are
+ * normalized coordinates in the inclusive range 0–1. NPC records also store
+ * a unique `id`, `name`, manifest-backed `spriteKey`, and `greeting`.
+ *
+ * @usage
+ * Use `createDefaultBuilderState(backgroundKey, spriteKey)` to initialize the
+ * workbench and `createNpcState(index, spriteKey)` when adding an NPC. Pass
+ * the document and asset catalog to `validateBuilderState`; it returns an
+ * array of `{ field, message }` errors and does not mutate the document.
+ */
 export function createDefaultBuilderState(backgroundKey, spriteKey) {
   if (!backgroundKey || !spriteKey) {
     throw new TypeError('A background and player sprite are required');

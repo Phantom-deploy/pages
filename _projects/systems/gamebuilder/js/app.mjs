@@ -1,3 +1,23 @@
+/**
+ * @module app
+ * @description
+ * Browser entry point for the GameBuilder v2 workbench. Connects the semantic
+ * builder form to asset manifests, builder state, generated GameEngine code,
+ * and the shared GAME_RUNNER controller.
+ *
+ * @data
+ * Reads background and sprite manifest JSON from the published
+ * `/images/projects/gamebuilder/` paths. The form edits a versioned builder
+ * document containing `name`, `backgroundKey`, `player`, and a list of `npcs`.
+ * Player and NPC positions use normalized `x`/`y` values from 0 to 1.
+ *
+ * @usage
+ * Load this module from the GameBuilder v2 page after its workbench markup and
+ * GAME_RUNNER include. The page root must expose `data-gamebuilder-workbench`;
+ * its descendants provide the `data-role` and `data-action` hooks queried
+ * below. Generate / Sync Code validates the current form and sends generated
+ * source through the runner controller's `setCode` method.
+ */
 import { createAssetCatalog } from './asset-catalog.mjs';
 import { createDefaultBuilderState, createNpcState } from './builder-state.mjs';
 import { generateLevelCode } from './code-generator.mjs?v=2';

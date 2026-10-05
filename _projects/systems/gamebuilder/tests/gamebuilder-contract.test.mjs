@@ -1,3 +1,20 @@
+/**
+ * @module gamebuilder-contract-tests
+ * @description
+ * Node.js contract tests for GameBuilder's manifest catalog, versioned state,
+ * input validation, and generated GAME_RUNNER level source.
+ *
+ * @data
+ * Uses small in-memory background and sprite manifests plus representative
+ * builder documents. Fixtures cover an empty NPC list, invalid configuration,
+ * and generation with multiple NPCs.
+ *
+ * @usage
+ * Run from the repository root with
+ * `node --test _projects/systems/gamebuilder/tests/gamebuilder-contract.test.mjs`.
+ * These tests assert public module behavior and generated-code structure; they
+ * do not require a browser or a running GAME_RUNNER.
+ */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createAssetCatalog } from '../js/asset-catalog.mjs';
