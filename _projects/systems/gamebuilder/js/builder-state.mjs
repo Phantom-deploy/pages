@@ -132,6 +132,9 @@ export function validateBuilderState(state, catalog) {
     if (typeof barrier?.name !== 'string' || !barrier.name.trim()) {
       errors.push({ field: `${field}.name`, message: `Enter a name for barrier ${index + 1}.` });
     }
+    if (barrier?.visible !== undefined && typeof barrier.visible !== 'boolean') {
+      errors.push({ field: `${field}.visible`, message: `Barrier ${index + 1} visibility must be true or false.` });
+    }
     if (!Array.isArray(barrier?.points) || barrier.points.length < 2) {
       errors.push({ field: `${field}.points`, message: `Barrier ${index + 1} needs at least two points.` });
       return;

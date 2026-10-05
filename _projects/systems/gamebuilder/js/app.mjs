@@ -194,6 +194,20 @@ function renderBarriers(barriers, activeId) {
     title.textContent = barrier.name;
     const pointCount = document.createElement('p');
     pointCount.textContent = `${barrier.points.length} ${barrier.points.length === 1 ? 'point' : 'points'}`;
+    const pointList = document.createElement('ol');
+    pointList.className = 'ocs__gamebuilder-barrier-points';
+    pointList.setAttribute('aria-label', `${barrier.name} control points`);
+    if (barrier.points.length === 0) {
+      const emptyPoint = document.createElement('li');
+      emptyPoint.textContent = 'No points added yet.';
+      pointList.append(emptyPoint);
+    } else {
+      barrier.points.forEach((point, pointIndex) => {
+        const pointItem = document.createElement('li');
+        pointItem.textContent = `Point ${pointIndex + 1}: X ${point.x}, Y ${point.y}`;
+        pointList.append(pointItem);
+      });
+    }
 
     const actions = document.createElement('div');
     actions.className = 'ocs__gamebuilder-barrier-card-actions';
@@ -205,6 +219,18 @@ function renderBarriers(barriers, activeId) {
     editButton.textContent = activeId === barrier.id ? 'Editing' : `Edit Barrier ${index + 1}`;
     editButton.disabled = Boolean(activeId);
     editButton.setAttribute('aria-label', `Edit ${barrier.name}`);
+    const visibilityButton = document.createElement('button');
+    visibilityButton.className = 'ocs__btn';
+    visibilityButton.type = 'button';
+    visibilityButton.dataset.action = 'toggle-barrier-visibility';
+    visibilityButton.dataset.barrierId = barrier.id;
+    visibilityButton.textContent = barrier.visible === false ? 'Show' : 'Hide';
+    visibilityButton.setAttribute(
+      'aria-label',
+      `${barrier.visible === false ? 'Show' : 'Hide'} ${barrier.name}`
+    );
+    visibilityButton.setAttribute('aria-pressed', String(barrier.visible !== false));
+    visibilityButton.disabled = activeId === barrier.id;
     const removeButton = document.createElement('button');
     removeButton.className = 'ocs__btn';
     removeButton.type = 'button';
@@ -212,9 +238,9 @@ function renderBarriers(barriers, activeId) {
     removeButton.dataset.barrierId = barrier.id;
     removeButton.textContent = 'Remove';
     removeButton.setAttribute('aria-label', `Remove ${barrier.name}`);
-    actions.append(editButton, removeButton);
+    actions.append(editButton, visibilityButton, removeButton);
 
-    card.append(title, pointCount, actions);
+    card.append(title, pointCount, pointList, actions);
     barrierList.append(card);
   }
 }
@@ -310,7 +336,12 @@ try {
       if (activeBarrierId) return;
       state = readForm(state);
       const index = nextBarrierIndex++;
-      const barrier = { id: `barrier-${index + 1}`, name: `Barrier ${index + 1}`, points: [] };
+      const barrier = {
+        id: `barrier-${index + 1}`,
+        name: `Barrier ${index + 1}`,
+        visible: true,
+        points: []
+      };
       state.barriers.push(barrier);
       beginBarrierEdit(barrier.id);
     } else if (button.dataset.action === 'edit-barrier') {
@@ -327,6 +358,14 @@ try {
       }
       updateBarrierEditor();
       setStatus('Barrier removed. Generate code to sync the change to GAME_RUNNER.');
+    } else if (button.dataset.action === 'toggle-barrier-visibility') {
+      const barrier = state.barriers.find((entry) => entry.id === button.dataset.barrierId);
+      if (!barrier || barrier.id === activeBarrierId) return;
+      barrier.visible = barrier.visible === false;
+      updateBarrierEditor();
+      setStatus(
+        `${barrier.name} ${barrier.visible ? 'shown' : 'hidden'}. Hidden barriers still block player movement.`
+      );
     } else if (button.dataset.action === 'add-barrier-point') {
       if (!activeBarrierId) return;
       const x = barrierXInput.value === '' ? Number.NaN : Number(barrierXInput.value);

@@ -40,8 +40,8 @@ GameBuilder v2 page
     │   ├── Player fieldset: name, sprite, normalized X/Y position
     │   ├── NPCs fieldset: Add NPC and repeatable NPC configuration cards
     │   │   └── Each NPC: name, sprite, normalized X/Y position, greeting
-    │   └── Spline barriers: point placement, coordinate entry, undo, edit,
-    │       finish/cancel, and removal controls
+    │   └── Spline barriers: point placement, coordinate list, undo, edit,
+    │       visibility, finish/cancel, and removal controls
     └── Right: shared GAME_RUNNER include
         ├── Existing runner controls and source editor
         └── Game output/canvas
@@ -248,12 +248,14 @@ During authoring, click the GAME_RUNNER preview to add points, or use the
 normalized X/Y fields as a keyboard-accessible alternative. Finish the active
 barrier before generating code; the editor also supports continuing an
 existing barrier, undoing the last point, canceling edits, and removing a
-barrier. Curves are smoothed with Catmull–Rom interpolation by the shared
-GameEngine class. Finished paths remain visible in the OCS accent color without
-authoring-point markers; the runtime renderer uses the same theme color. During
-game updates, the runtime class resolves player overlap against the spline.
-Barriers and NPCs resize with the logical canvas dimensions, not the browser's
-incidental display pixels.
+barrier. Each barrier can be hidden or shown from its card. Hidden barriers are
+not drawn in the editor or runtime, but remain collision obstacles. Curves are
+smoothed with Catmull–Rom interpolation by the shared GameEngine class.
+Control-point markers are shown while a barrier is being edited, and each card
+lists every point's X/Y coordinates. The runtime renderer uses the OCS accent
+color. During game updates, the runtime class resolves player overlap against
+the spline. Barriers and NPCs resize with the logical canvas dimensions, not
+the browser's incidental display pixels.
 
 Store manifest keys (or another stable asset identifier), not display labels or
 duplicated asset metadata. At generation time, resolve keys through the

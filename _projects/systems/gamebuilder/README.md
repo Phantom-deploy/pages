@@ -18,10 +18,11 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
   configured NPC.
 - The workbench supports multiple open spline barriers. Click the shared runner
   preview to add normalized control points, or enter X/Y values and add a point
-  with the keyboard. Completed barriers generate independent `SplineBarrier`
-  objects from the shared GameEngine. Finished paths stay visible in the theme
-  accent color without their temporary point markers; the runtime barrier also
-  resolves player collisions.
+  with the keyboard. Each barrier card lists the full control-point sequence,
+  which also remains visible in the preview. Cards can hide or show a barrier;
+  hidden barriers are invisible but retain their player collision behavior.
+  Generated levels create independent `SplineBarrier` objects from the shared
+  GameEngine.
 - `docs/` retains the existing asset guidance, workbench page, and GameBuilder
   v2 proposal.
 - `images/` is reserved for GameBuilder system-owned images. Game/project art

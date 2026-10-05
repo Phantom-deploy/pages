@@ -75,6 +75,11 @@ test('validates spline barriers and requires two normalized points', () => {
   state.barriers[0].points.push({ x: 0.9, y: 0.3 });
   const pointFields = validateBuilderState(state, catalog).map((error) => error.field);
   assert.deepEqual(pointFields, ['barriers.0.points.0.x']);
+
+  state.barriers[0].points[0].x = 0.1;
+  state.barriers[0].visible = 'hidden';
+  const visibilityFields = validateBuilderState(state, catalog).map((error) => error.field);
+  assert.deepEqual(visibilityFields, ['barriers.0.visible']);
 });
 
 test('maps preview clicks to clamped normalized coordinates', () => {
@@ -145,6 +150,11 @@ test('generates normalized spline barriers as separate engine object definitions
   assert.match(result.code, /\{ class: SplineBarrier, data: barrierData1 \}/);
   assert.match(result.code, /\{ class: SplineBarrier, data: barrierData2 \}/);
   assert.doesNotMatch(result.code, /class: SplineBarrier,\s+data: \{/);
+
+  state.barriers[0].visible = false;
+  const hiddenResult = generateLevelCode(state, catalog);
+  assert.deepEqual(hiddenResult.errors, []);
+  assert.match(hiddenResult.code, /visible: false,\s+splinePoints:/);
 });
 
 test('smooth spline geometry includes both endpoints', () => {

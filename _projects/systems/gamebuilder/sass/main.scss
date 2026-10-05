@@ -248,12 +248,13 @@
 
 /// Point-placed spline barrier controls and preview marks
 ///
-/// Purpose: Style the repeatable barrier list, coordinate-entry fallback,
-/// and temporary point-capture overlay on the shared game preview.
+/// Purpose: Style the repeatable barrier list, visibility controls,
+/// coordinate-entry fallback, and point-capture overlay on the shared preview.
 /// Reuse: These selectors are scoped to GameBuilder; generated barriers use
 /// the shared GameEngine class and do not depend on editor styles.
 /// Usage: `app.mjs` toggles the overlay's `is-active` state while a barrier is
-/// being authored. Stored points remain normalized as the preview resizes.
+/// being authored. Visible barriers show all stored points, normalized as the
+/// preview resizes.
 /// @group gamebuilder-barriers
 .ocs__gamebuilder-barrier-list {
   display: grid;
@@ -280,6 +281,16 @@
 .ocs__gamebuilder-barrier h3 {
   margin: 0;
   font-size: 0.9rem;
+}
+
+.ocs__gamebuilder-barrier-points {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--pref-muted-text-color, var(--pref-text-color));
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
 }
 
 .ocs__gamebuilder-barrier-card-actions,

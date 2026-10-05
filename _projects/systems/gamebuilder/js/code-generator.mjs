@@ -78,7 +78,7 @@ export function generateLevelCode(state, catalog) {
   const barrierDefinitions = state.barriers.map((barrier, index) => `    const barrierData${index + 1} = {
       id: ${quote(barrier.id)},
       coordinateSpace: "normalized",
-      splinePoints: ${JSON.stringify(barrier.points)}
+      ${barrier.visible === false ? 'visible: false,\n      ' : ''}splinePoints: ${JSON.stringify(barrier.points)}
     };`);
 
   const npcImport = state.npcs.length > 0
