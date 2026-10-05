@@ -40,7 +40,7 @@ lessons/java
 
 # Systems
 systems/ai-ab-engine
-systems/calendar:dev
+systems/calendar
 systems/courses:dev
 systems/gamebuilder:dev
 systems/auto-generator
