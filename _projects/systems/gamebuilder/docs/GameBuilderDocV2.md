@@ -126,6 +126,27 @@ items.
 
 ## Target product boundaries and future workspace
 
+### Next priority: saved games and the Gamify reference game
+
+The next workspace priority is loading, editing, and saving complete games,
+followed by bringing Gamify and its levels into this registered system.
+See [GameBuilder and Gamify workspace roadmap](./GamifyWorkspaceRoadmap.md)
+for the source findings, proposed ownership, ordered milestones, and
+verification criteria. This is a plan, not an implemented migration.
+
+The first save milestone will use browser-local persistence plus portable
+JSON/source export. Existing Gamify behavior must be retained; unsupported
+objects, callbacks, and custom minigames remain code-owned until panel support
+can preserve them. Multi-module saves must retain actual level sources, not
+just a runner entry module that imports the published originals. Game-in-Game
+and the existing Player gravity flag follow the load/edit/save foundation.
+
+Currently GAME_RUNNER saves/restores editor text, but GameBuilder resets its
+panel configuration on reload. Startup preserves existing runner text; the
+confirmed gap is missing workspace persistence, not an established automatic
+startup overwrite. Save/load must restore matching panel state and exact
+editor text without automatically regenerating over manual edits.
+
 ### Navigation and product boundaries
 
 - **Home** remains the student-built onboarding adventure. GameBuilder should
@@ -482,28 +503,31 @@ until the user accepts replacement.
 
 ### Stage 2 — complete builder behaviors
 
-1. Add wall/barrier controls to structured state and validate them before code
-   generation.
-2. Add AST-based import for the supported object-literal subset, with a
-   non-destructive preview and a canonical simple-game fixture.
-3. Add JSON save/load, migration/error feedback, and separate code/config
-   exports.
+1. Spline barrier controls and validation are implemented. Next add complete
+   workspace save/load, retaining panel state and exact runner source together,
+   with migration/error feedback and portable JSON/source exports.
+2. Add multi-level, multi-module loading and source editing before relocating
+   Gamify; run saved module edits rather than unchanged published imports.
+3. Move Gamify into the registered system with explicit metadata and
+   make-generated catalogs, preserving existing behavior and URLs. Then add
+   bounded AST-based panel import with a non-destructive preview.
 4. Add regression coverage for manifest resolution, generation from
    representative configurations, missing assets, schema validation, code
    import/round-trip preservation, and the runner integration hook.
 
 ### Stage 3 — advanced authoring
 
-1. Improve object placement and editing against the runner's documented
-   logical coordinate space.
-2. Add richer typed objects and per-spritesheet animation/direction settings.
+1. Add richer asset metadata and per-object animation/direction overrides,
+   followed by Game-in-Game authoring using the existing nested-game lifecycle.
+2. Expose existing Player gravity without confusing it with custom platformer
+   physics; expand typed objects and placement as compatibility requires.
 3. Consider server/account persistence only after the desired ownership,
    sharing, and collaboration behavior is specified.
 
 ## Decisions to confirm before implementation
 
-1. **Draft persistence:** should the first version save configuration only as
-   downloaded/uploaded JSON, or also keep a browser-local draft?
+1. **Draft persistence (confirmed):** browser-local complete-game saves plus
+   portable JSON/source exports are the first milestone.
 2. **Editor visibility:** should the GAME_RUNNER editor always be shown, or
    should Builder/Code modes be used to show the editor only when requested?
 3. **Runner layout:** should the runner editor and game output remain stacked
@@ -512,9 +536,8 @@ until the user accepts replacement.
 4. **Import scope:** which object-literal patterns in the simple game should
    be panel-editable in the first importer? The proposal recommends a safe
    static-literal subset with unsupported code preserved.
-5. **Local artifact workflow:** are download/upload and VS Code-managed source
-   files sufficient initially, or is a secured local workspace bridge a
-   required feature?
+5. **Local artifact workflow (confirmed):** download/upload and VS Code-managed
+   source files are sufficient initially; direct workspace writes are deferred.
 6. **Migration scope:** should v2 initially support the current background,
    player, NPC, and barriers feature set, or may some v1 controls be deferred?
 
