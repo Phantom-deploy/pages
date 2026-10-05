@@ -9,10 +9,6 @@ permalink: /gamebuilder/v2/
 <div class="ocs__gamebuilder-system ocs__container ocs__gamebuilder-workbench" data-gamebuilder-workbench data-base-url="{{ site.baseurl }}">
   <header class="ocs__gamebuilder-header">
     {% include projects/cs-pathway/cs-pathway-menu.html %}
-    <div class="ocs__gamebuilder-header-actions">
-      <a href="{{ '/gamebuilder/' | relative_url }}" aria-label="Open the original GameBuilder" title="Open the original GameBuilder">GameBuilder v1</a>
-      <a href="{{ '/gamebuilder/doc' | relative_url }}" target="_blank" rel="noopener noreferrer" aria-label="GameBuilder asset documentation" title="GameBuilder asset documentation">Asset docs</a>
-    </div>
   </header>
 
   <header class="ocs__gamebuilder-workbench-header">
