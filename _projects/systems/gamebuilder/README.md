@@ -9,6 +9,9 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
 
 - `index.md` is the runner-backed v2 workbench entry point.
 - `docs/BuilderWorkbenchV1.md` retains the original v1 builder page.
+- `notebooks/` owns the variables homework, backgrounds lesson, and characters
+  lesson. The characters lesson teaches Player and NPC data, instantiation,
+  inheritance, and animation through two editable GAME_RUNNER examples.
 - `js/` contains scripts owned and distributed by this system.
 - `sass/main.scss` is the system's page-scoped stylesheet entry point.
 - `images/bg/` and `images/sprites/` contain the starter assets and manifests
@@ -30,6 +33,12 @@ original `/gamebuilder/` page. Other documentation is published from `docs/`.
   v2 proposal.
 - `images/` is reserved for GameBuilder system-owned images. Game/project art
   remains with its owning project.
+- Lesson image references use `/images/projects/gamebuilder/`: `bg/` contains
+  their backgrounds, `sprites/` their character and projectile images, and
+  `lessons/` their instructional illustrations. Copies used by other games are
+  retained. Supporting lesson images are not automatically added to the
+  workbench sprite manifest; their individual animation settings remain in the
+  lesson examples.
 
 Edit these sources under `_projects/systems/gamebuilder/`. The page, JavaScript,
 Sass, and images copied into the site directories are generated output.
@@ -40,6 +49,7 @@ Run the focused checks first when changing GameBuilder logic:
 
 ```sh
 node --test _projects/systems/gamebuilder/tests/gamebuilder-contract.test.mjs
+node --test _projects/systems/gamebuilder/tests/lesson-contract.test.mjs
 for file in _projects/systems/gamebuilder/js/*.mjs; do node --check "$file"; done
 ```
 
@@ -65,6 +75,9 @@ splitting, documentation publishing, and Jekyll compilation.
 For the normal local workflow, use the root Makefile targets:
 
 ```sh
+make dev
+# GameBuilder is registered with :dev; lesson notebooks are copied and converted.
+# For a full clean site rebuild instead:
 make refresh
 # or, to start without first cleaning the generated site:
 make
@@ -81,8 +94,9 @@ intentionally want a separate one-time build as well.
 
 ### Fast GameBuilder edit-preview loop
 
-Start the normal site once with `make` (or `make refresh` if a clean restart is
-needed). After changing GameBuilder source, rebuild only the registered system:
+Start the reduced development site with `make dev`. GameBuilder's project
+watcher copies and converts changed source notebooks as well as updating its
+assets. After changing GameBuilder source, you can also rebuild only the system:
 
 ```sh
 make -C _projects/systems/gamebuilder build

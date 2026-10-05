@@ -25,6 +25,15 @@ surface; GameBuilder does not create a second canvas, game loop, or executor.
 Replacing runner code is explicit and prompts for confirmation when existing
 code differs from the last generated version.
 
+The system also owns the lesson notebooks under `notebooks/`. The characters
+lesson at `/game/essentials/characters` connects generated data to object
+literals, constructors, inheritance, spritesheet indexes, and animation. Its
+two editable GAME_RUNNER examples progress from a Player to a Player with two
+NPC instances. The backgrounds and characters lessons use system-owned assets
+published under `/images/projects/gamebuilder/`, rather than another game's
+distribution. GameBuilder is registered for `make dev`; its notebook watcher
+copies and converts source lesson changes for the local preview.
+
 ### Current page composition
 
 ```text
