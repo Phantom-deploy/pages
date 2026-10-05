@@ -54,9 +54,17 @@
   height: clamp(32rem, calc(100dvh - 14rem), 52rem);
 }
 
-.ocs__gamebuilder-workbench {
-  width: min(100%, 1500px);
-  margin: 0 auto;
+.ocs__container.ocs__gamebuilder-workbench {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 1rem;
+}
+
+.page-content:has(.ocs__gamebuilder-workbench) > .wrapper {
+  width: 100%;
+  max-width: none;
+  padding: 0;
 }
 
 .ocs__gamebuilder-workbench-header {
@@ -76,9 +84,21 @@
   margin-left: auto;
 }
 
+.ocs__gamebuilder-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ocs__gamebuilder-panel-header .ocs__section-title {
+  margin: 0;
+}
+
 .ocs__gamebuilder-workspace {
   display: grid;
-  grid-template-columns: minmax(15rem, 20rem) minmax(0, 1fr);
+  grid-template-columns: minmax(18rem, 25%) minmax(0, 1fr);
   align-items: start;
   gap: 1rem;
 }
@@ -87,22 +107,27 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-.ocs__gamebuilder-card {
+.ocs__gamebuilder-builder {
   min-width: 0;
-  padding: 1rem;
-  border: 1px solid var(--ui-border);
-  border-radius: 0.75rem;
-  background: var(--pref-bg-color);
-}
-
-.ocs__gamebuilder-card h2 {
-  margin: 0 0 1rem;
-  font-size: 1.35rem;
 }
 
 .ocs__gamebuilder-form {
   display: grid;
   gap: 0.85rem;
+}
+
+.ocs__gamebuilder-form fieldset {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ocs__gamebuilder-form legend {
+  margin-bottom: 0.35rem;
+  font-weight: 700;
 }
 
 .ocs__gamebuilder-form label {
@@ -113,6 +138,10 @@
 
 .ocs__gamebuilder-form .ocs__input {
   width: 100%;
+}
+
+.ocs__gamebuilder-form select.ocs__input {
+  max-width: none;
 }
 
 .ocs__gamebuilder-form-help,
@@ -186,7 +215,16 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .ocs__gamebuilder-workbench {
+    padding: 0.5rem;
+  }
+
   .ocs__gamebuilder-workbench-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .ocs__gamebuilder-panel-header {
     align-items: flex-start;
     flex-wrap: wrap;
   }

@@ -57,7 +57,7 @@ class ${className} {
       id: ${quote(playerId || 'player')},
       src: path + ${quote(sprite.src)},
       SCALE_FACTOR: ${sprite.scaleFactor},
-      STEP_FACTOR: 100,
+      STEP_FACTOR: 1000,
       ANIMATION_FPS: 8,
       INIT_POSITION: { x: ${state.player.position.x}, y: ${state.player.position.y} },
       orientation: { rows: ${sprite.rows}, columns: ${sprite.cols} },

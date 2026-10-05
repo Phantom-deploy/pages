@@ -38,6 +38,7 @@ test('generates GAME_RUNNER-compatible source with safe string literals', () => 
   assert.match(result.code, /export const gameLevelClasses = \[GameLevelBuilder\]/);
   assert.match(result.code, /export \{ GameControl \}/);
   assert.match(result.code, /Ada's Adventure/);
+  assert.match(result.code, /STEP_FACTOR: 1000/);
   assert.match(result.code, /\/images\/projects\/gamebuilder\/bg\/alien_planet\.jpg/);
   assert.match(result.code, /\/images\/projects\/gamebuilder\/sprites\/chillguy\.png/);
 });
