@@ -16,7 +16,7 @@
 <section id="announcementChat" class="announcement-chat" data-course="{{ page.course }}" aria-labelledby="announcementChatTitle">
   <div class="chat-header">
     <div class="chat-heading">
-      <span class="chat-badge" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
+      <a class="chat-badge" href="{{ '/student/calendar' | relative_url }}" aria-label="Open OCS calendar" title="Open OCS calendar"><i class="fas fa-calendar" aria-hidden="true"></i></a>
       <div class="chat-heading-text">
         <h2 class="chat-title" id="announcementChatTitle">{{ page.course | upcase }} Announcements</h2>
         <p class="chat-subtitle">Class-wide chat for this course — announcements, questions, anything that isn't week-specific.</p>
